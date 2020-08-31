@@ -13,43 +13,47 @@ This project emulates a basic backend for a food ordering service. In addition t
 
 # Client Binary Usage
 1. ccgobbles
-    ./ccgobbles [<function-name>]
-    Functions:
-        register_user:
-            Register a user in the database
 
-        login_user:
-            Login a user with the proper credentials (email and password)
+    ./ccgobbles function-name
+    
+        Functions:
+            register_user:
+                Register a user in the database
 
-        update_user:
-            Update user info
+            login_user:
+                Login a user with the proper credentials (email and password)
 
-        delete_user:
-            Delete a user
+            update_user:
+                Update user info
 
-        add_restaurant:
-            Add restaurant to database
+            delete_user:
+                Delete a user
 
-        create_order
-            Create an order with the proper user email, restaurant id, and order items
+            add_restaurant:
+                Add restaurant to database
+
+            create_order
+                Create an order with the proper user email, restaurant id, and order items
 
 2. metrics
-    ./metrics [<metric-name>]
-    Metric Names
-        average:
-            Calculate the average number of items per order in the last [<time-interval>]
 
-        percentile
-            Calculate the 95th percentile of number of items per order in the last [<time-interval>]
+    ./metrics metric-name
+    
+        Metric Names
+            average:
+                Calculate the average number of items per order in the last [<time-interval>]
 
-    Time Intervals
-        s:
-            Last 5 seconds
+            percentile
+                Calculate the 95th percentile of number of items per order in the last [<time-interval>]
 
-        m:
-            Last 1 minute
+        Time Intervals
+            s:
+                Last 5 seconds
 
-        h:
-            Last 1 hour
+            m:
+                Last 1 minute
+
+            h:
+                Last 1 hour
 
         
