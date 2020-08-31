@@ -1,0 +1,45 @@
+syntax="proto2";
+
+package metrics_server;
+option go_package = "proto/metrics_server";
+
+message Order {
+    optional string orderId = 1;
+    optional string email = 2;
+    optional string restId = 3;
+    repeated string items = 4;
+}
+
+message OrderDetailsRequest {
+    optional Order order = 1;
+}
+
+message OrderDetailsResponse {
+    optional string response = 1;
+}
+
+enum CalcType {
+    CALC_UNKNOWN = 0;
+    CALC_AVERAGE = 1;
+    CALC_PERCENTILE = 2;
+}
+
+// come back later to use enums
+message RunMetricScrapeRequest {
+    optional string time = 1;
+    optional CalcType calcType = 2;
+    optional string name = 3;
+    optional string help = 4;
+}
+
+message RunMetricScrapeResponse {
+    optional string response = 1;
+}
+
+service Metrics {
+    // sends an Order
+    // rpc OrderDetails (OrderDetailsRequest) returns (OrderDetailsResponse) {}; 
+
+    // creates a new metrics scraper
+    rpc RunMetricScrape (RunMetricScrapeRequest) returns (RunMetricScrapeResponse) {};
+}

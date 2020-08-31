@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+    mongodb:
+        container_name: mongodb
+        image: mongo
+        network_mode: ccgobbles
+        ports:
+            - 27017:27017
+        volumes:
+            - ./data/mongo:/data/db
+
+    prometheus:
+        container_name: prometheus
+        image: prom/prometheus
+        network_mode: ccgobbles
+        ports:
+            - 9090:9090
+        volumes:
+            - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+            - ./data/prometheus:/prometheus
+
+    grafana:
+        container_name: grafana
+        image: grafana/grafana
+        network_mode: ccgobbles
+        ports:
+            - 3000:3000
+        volumes:
+            - ./data/grafana:/var/lib/grafana
+        
+    ccgobbles_server:
+        container_name: ccgobbles_server
+        build: 
+            context: .
+            dockerfile: ./ccgobbles_server/Dockerfile
+        network_mode: ccgobbles
+        ports:
+            - 50051:50051
+
+    metrics_server:
+        container_name: metrics_server
+        build:
+            context: .
+            dockerfile: ./metrics_server/Dockerfile
+        network_mode: ccgobbles
+        ports:
+            - 50052:50052
+            - 8080:8080

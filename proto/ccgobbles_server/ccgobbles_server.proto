@@ -1,0 +1,133 @@
+syntax="proto2";
+
+package ccgobbles_server;
+option go_package = "proto/ccgobbles_server";
+
+enum ResponseType {
+    SUCCESS = 0;
+    FAILURE = 1;
+}
+
+message Address {
+    optional string streetNumber = 1;
+    optional string street = 2;
+    optional string city = 3;
+    optional string state = 4;
+    optional string zip = 5;
+}
+
+message User {
+    optional string firstName = 1;
+    optional string lastName = 2;
+    optional string email = 3;
+    optional string password = 4;
+    optional Address address = 5;
+}
+
+message MenuItem {
+    optional string menuId = 1;
+    optional string name = 2;
+    optional double price = 3;
+}
+
+message Restaurant {
+    optional string restId = 1;
+    optional string name = 2;
+    optional Address address = 3;
+    repeated MenuItem menuitem = 4;
+}
+
+message Order {
+    optional string email = 1;
+    optional string restId = 2;
+}
+
+message OrderItem {
+    optional string menuId = 1;
+    optional int64 quantity = 2;
+}
+
+message RegisterUserRequest {
+    optional User user = 1;
+}
+
+message RegisterUserResponse {
+    optional string response = 1;
+}
+
+message LoginUserRequest {
+    optional string email = 1;
+    optional string password = 2;
+}
+
+message LoginUserResponse {
+    optional bool response = 1;
+}
+
+message UpdateUserRequest {
+    optional User user = 2;
+}
+
+message UpdateUserResponse {
+    optional string response = 1;
+}
+
+message DeleteUserRequest {
+    optional string email = 1;
+}
+
+message DeleteUserResponse {
+    optional string response = 1;
+}
+
+message AddRestaurantRequest {
+    optional Restaurant restaurant = 1;
+}
+
+message AddRestaurantResponse {
+    optional string response = 1;
+}
+
+message AddMenuRequest {
+    optional string restId = 1;
+    repeated MenuItem item = 2;
+}
+
+message AddMenuResponse {
+    optional ResponseType response = 1;
+}
+
+message CreateOrderRequest {
+    optional string email = 1;
+    optional string restId = 2;
+    optional string orderId = 3;
+    repeated OrderItem orderItem = 4;
+}
+
+message CreateOrderResponse {
+    optional string response = 1;
+}
+
+
+service CCGobbles {
+    // Unary API to register user
+    rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse) {};
+
+    // // Unary API to login user
+    rpc LoginUser (LoginUserRequest) returns (LoginUserResponse) {};
+
+    // // Unary API to update user
+    rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {};
+
+    // // Unary API to delete user
+    rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {};
+
+    // // Unary API to add restaurant
+    rpc AddRestaurant (AddRestaurantRequest) returns (AddRestaurantResponse) {};
+
+    // // Unary API to add menu
+    // rpc AddMenu (AddMenuRequest) returns (AddMenuResponse) {};
+
+    // // Unary API to create orders
+    rpc CreateOrder (CreateOrderRequest) returns (CreateOrderResponse) {};
+}
