@@ -1,7 +1,7 @@
 # About
 This project emulates a basic backend for a food ordering service. In addition to the basic requirements for a food ordering service, it also implements basic monitoring with Prometheus.
 
-# Prebuild Installations
+# Prebuild Installations (Required before running Build Steps)
 1. Docker
 2. Go
 3. Protoc
