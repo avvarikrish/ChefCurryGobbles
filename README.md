@@ -1,5 +1,5 @@
 # About
-This project emulates a basic backend for a food ordering service. In addition to the basic requirements for a food ordering service, it also implements basic monitoring with Prometheus.
+This project emulates a basic backend for a food ordering service using gRPC. In addition to the basic requirements for a food ordering service, it also implements basic monitoring with Prometheus.
 
 # Prebuild Installations (Required before running Build Steps)
 1. Docker
