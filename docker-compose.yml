@@ -4,7 +4,6 @@ services:
     mongodb:
         container_name: mongodb
         image: mongo
-        network_mode: ccgobbles
         ports:
             - 27017:27017
         volumes:
@@ -13,7 +12,6 @@ services:
     prometheus:
         container_name: prometheus
         image: prom/prometheus
-        network_mode: ccgobbles
         ports:
             - 9090:9090
         volumes:
@@ -23,7 +21,6 @@ services:
     grafana:
         container_name: grafana
         image: grafana/grafana
-        network_mode: ccgobbles
         ports:
             - 3000:3000
         volumes:
@@ -34,7 +31,6 @@ services:
         build: 
             context: .
             dockerfile: ./ccgobbles_server/Dockerfile
-        network_mode: ccgobbles
         ports:
             - 50051:50051
 
@@ -43,7 +39,6 @@ services:
         build:
             context: .
             dockerfile: ./metrics_server/Dockerfile
-        network_mode: ccgobbles
         ports:
             - 50052:50052
             - 8080:8080

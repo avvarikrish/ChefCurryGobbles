@@ -1,6 +1,3 @@
-# Create the docker network
-docker network create ccgobbles
-
 # Generate the protobuf files
 for PROTODIR in proto/*
 do
