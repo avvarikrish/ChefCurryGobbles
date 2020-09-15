@@ -7,5 +7,6 @@ import (
 )
 
 func main() {
-	log.Fatalf("Failed to start: %v", ccgobblesserver.New().Start())
+	config := "config/ccgobbles_server.yml"
+	log.Fatalf("Failed to start: %v", ccgobblesserver.New(config).Start())
 }

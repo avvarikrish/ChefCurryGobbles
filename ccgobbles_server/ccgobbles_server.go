@@ -5,16 +5,16 @@ import (
 	"fmt"
 	"time"
 
-	"google.golang.org/grpc/codes"
-	"google.golang.org/protobuf/proto"
-
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-
 	"go.mongodb.org/mongo-driver/mongo"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 
+	"github.com/avvarikrish/chefcurrygobbles/ccgobbles_server/config"
 	bc "github.com/avvarikrish/chefcurrygobbles/pkg/bsonconversion"
+
 	pb "github.com/avvarikrish/chefcurrygobbles/proto/ccgobbles_server"
 )
 
@@ -23,7 +23,9 @@ var restCollection *mongo.Collection
 var orderCollection *mongo.Collection
 
 // CcgobblesServer represents a new instance of the server
-type CcgobblesServer struct{}
+type CcgobblesServer struct {
+	cfg config.CcgobblesServerConfig
+}
 
 type user struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
@@ -40,11 +42,13 @@ type restaurant struct {
 }
 
 // New returns a new initialized instance of CCGobblesServer.
-func New() *CcgobblesServer {
-	return &CcgobblesServer{}
+func New(file string) *CcgobblesServer {
+	return &CcgobblesServer{
+		cfg: config.NewConfig(file),
+	}
 }
 
-// Start enables the CCGoblesServer service.
+// Start starts the CCGoblesServer service.
 func (c *CcgobblesServer) Start() error {
 	return c.startGRPC()
 }

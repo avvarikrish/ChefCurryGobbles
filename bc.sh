@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # check if builds properly
-docker-compose up -d
+docker-compose up -d --build
 if [[ $? -ne 0 ]]; then
     echo "Could not build all containers"
     exit 1

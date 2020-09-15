@@ -1,3 +1,0 @@
-mongo:
-  mongo_server: 'mongodb://mongodb:27017'
-  database: chefcurrygobbles
