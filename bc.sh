@@ -25,5 +25,4 @@ fi
 docker-compose down
 
 # push to git
-# git push -u origin master
-echo "Ready to push to master"
+git push -u origin master
