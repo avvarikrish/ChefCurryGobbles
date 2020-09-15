@@ -26,3 +26,5 @@ docker-compose down
 
 # push to git
 git push -u origin master
+
+echo "Successfully pushed to codebase"
