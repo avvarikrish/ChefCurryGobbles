@@ -34,11 +34,11 @@ services:
         ports:
             - 50051:50051
 
-    metrics_server:
-        container_name: metrics_server
-        build:
-            context: .
-            dockerfile: ./metrics_server/Dockerfile
-        ports:
-            - 50052:50052
-            - 8080:8080
+    # metrics_server:
+    #     container_name: metrics_server
+    #     build:
+    #         context: .
+    #         dockerfile: ./metrics_server/Dockerfile
+    #     ports:
+    #         - 50052:50052
+    #         - 8080:8080

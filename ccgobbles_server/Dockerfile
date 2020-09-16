@@ -8,6 +8,9 @@ RUN mkdir -p /go/src/github.com/avvarikrish/chefcurrygobbles
 # copy project into container
 COPY ./ccgobbles_server /go/src/github.com/avvarikrish/chefcurrygobbles/ccgobbles_server
 
+# copy config into container
+COPY ./config /go/src/github.com/avvarikrish/chefcurrygobbles/config
+
 # copy pkg and proto
 COPY ./pkg /go/src/github.com/avvarikrish/chefcurrygobbles/pkg
 COPY ./proto /go/src/github.com/avvarikrish/chefcurrygobbles/proto
