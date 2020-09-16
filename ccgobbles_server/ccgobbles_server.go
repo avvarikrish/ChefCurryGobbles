@@ -90,19 +90,26 @@ func (c *CcgobblesServer) setupMongo() error {
 
 // RegisterUser creates a new user
 func (c *CcgobblesServer) RegisterUser(ctx context.Context, req *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
-	fmt.Println("Registering User")
+	log.Info("Registering user")
+
 	userReq := req.GetUser()
 	data := &user{}
 	filter := bson.M{"email": userReq.GetEmail()}
-	checkRes := c.userCollection.FindOne(context.Background(), filter)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	checkRes := c.userCollection.FindOne(ctx, filter)
 	if err := checkRes.Decode(data); err == nil {
-		fmt.Println(data)
-		return nil, status.Errorf(codes.AlreadyExists, fmt.Sprintf("Email already exists: %v\n", userReq.GetEmail()))
+		return nil, status.Errorf(codes.AlreadyExists, fmt.Sprintf("email already exists: %v\n", userReq.GetEmail()))
 	}
-	_, err := c.userCollection.InsertOne(context.Background(), bc.CreateUserBson(userReq))
+
+	insCtx, insCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer insCancel()
+	_, err := c.userCollection.InsertOne(insCtx, bc.CreateUserBson(userReq))
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Internal error: %v\n", err))
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while inserting into mongo: %v\n", err))
 	}
+
 	return &pb.RegisterUserResponse{
 		Response: proto.String("Successfully Added User"),
 	}, nil
