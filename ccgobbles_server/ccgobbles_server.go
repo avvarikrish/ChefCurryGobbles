@@ -89,7 +89,7 @@ func (c *CcgobblesServer) setupMongo() error {
 }
 
 // RegisterUser creates a new user
-func (c *CcgobblesServer) RegisterUser(ctx context.Context, req *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
+func (c *CcgobblesServer) RegisterUser(_ context.Context, req *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
 	log.Info("Registering user")
 
 	userReq := req.GetUser()
@@ -115,9 +115,10 @@ func (c *CcgobblesServer) RegisterUser(ctx context.Context, req *pb.RegisterUser
 	}, nil
 }
 
-// LoginUser logs in a user if they enter the right password or username
+// LoginUser logs in a user if they enter the right password and email
 func (c *CcgobblesServer) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
-	fmt.Println("Sign in request")
+	log.Info("Sign in request")
+
 	loginPassword := req.GetPassword()
 	loginEmail := req.GetEmail()
 	data := &user{}
@@ -126,11 +127,13 @@ func (c *CcgobblesServer) LoginUser(ctx context.Context, req *pb.LoginUserReques
 	if err := res.Decode(data); err != nil {
 		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("Email not found: %v\n", loginEmail))
 	}
+
 	if loginPassword == data.Password {
 		return &pb.LoginUserResponse{
 			Response: proto.Bool(true),
 		}, nil
 	}
+
 	return &pb.LoginUserResponse{
 		Response: proto.Bool(false),
 	}, nil

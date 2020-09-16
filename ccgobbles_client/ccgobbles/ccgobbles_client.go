@@ -29,7 +29,6 @@ type User struct {
 type LoginUserRequest struct {
 	Email    string
 	Password string
-	Address  Addr
 }
 
 type DeleteUserRequest struct {
