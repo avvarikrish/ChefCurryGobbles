@@ -7,8 +7,6 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"google.golang.org/grpc"
 
@@ -16,7 +14,11 @@ import (
 )
 
 func (c *CcgobblesServer) startGRPC() error {
-	lis, err := net.Listen("tcp", ":50051")
+	if !c.initialized {
+		return fmt.Errorf("server not initialized")
+	}
+
+	lis, err := net.Listen(c.cfg.Server.Network, c.cfg.Server.Address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
@@ -42,29 +44,20 @@ func (c *CcgobblesServer) startGRPC() error {
 func (c *CcgobblesServer) connectToMongo() error {
 	log.Info("Connecting to Mongo")
 
-	client, err := mongo.NewClient(options.Client().ApplyURI(c.cfg.Mongo.MongoServer))
-	if err != nil {
-		return fmt.Errorf("error while connecting to mongodb: %v", err)
-	}
-
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	err = client.Connect(ctx)
+	err := c.mongoClient.Connect(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to connect to mongodb: %v", err)
 	}
 
 	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	if err = client.Ping(ctx, readpref.Primary()); err != nil {
+	if err = c.mongoClient.Ping(ctx, readpref.Primary()); err != nil {
 		return fmt.Errorf("could not ping to mongo db service: %v", err)
 	}
 
 	log.Info("Successfully connected to mongo")
-
-	userCollection = client.Database(c.cfg.Mongo.Database).Collection(c.cfg.Mongo.Collections.Users)
-	restCollection = client.Database(c.cfg.Mongo.Database).Collection(c.cfg.Mongo.Collections.Restaurants)
-	orderCollection = client.Database(c.cfg.Mongo.Database).Collection(c.cfg.Mongo.Collections.Orders)
 
 	return nil
 }

@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"time"
 
+	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
@@ -18,13 +20,16 @@ import (
 	pb "github.com/avvarikrish/chefcurrygobbles/proto/ccgobbles_server"
 )
 
-var userCollection *mongo.Collection
-var restCollection *mongo.Collection
-var orderCollection *mongo.Collection
-
 // CcgobblesServer represents a new instance of the server
 type CcgobblesServer struct {
-	cfg config.CcgobblesServerConfig
+	cfg         config.CcgobblesServerConfig
+	initialized bool
+
+	mongoClient     *mongo.Client
+	db              *mongo.Database
+	userCollection  *mongo.Collection
+	restCollection  *mongo.Collection
+	orderCollection *mongo.Collection
 }
 
 type user struct {
@@ -50,21 +55,51 @@ func New(file string) *CcgobblesServer {
 
 // Start starts the CCGoblesServer service.
 func (c *CcgobblesServer) Start() error {
+	if err := c.initialize(); err != nil {
+		return fmt.Errorf("failed to initialize app: %v", err)
+	}
+
 	return c.startGRPC()
 }
 
+func (c *CcgobblesServer) initialize() error {
+	if err := c.setupMongo(); err != nil {
+		return fmt.Errorf("error while connecting to mongo: %v", err)
+	}
+
+	c.initialized = true
+	return nil
+}
+
+func (c *CcgobblesServer) setupMongo() error {
+	log.Info("creating mongo client, db, collections")
+
+	client, err := mongo.NewClient(options.Client().ApplyURI(c.cfg.Mongo.MongoServer))
+	if err != nil {
+		return fmt.Errorf("error while creating mongo client: %v", err)
+	}
+
+	c.mongoClient = client
+	c.db = c.mongoClient.Database(c.cfg.Mongo.Database)
+	c.userCollection = c.db.Collection(c.cfg.Mongo.Collections.Users)
+	c.restCollection = c.db.Collection(c.cfg.Mongo.Collections.Restaurants)
+	c.orderCollection = c.db.Collection(c.cfg.Mongo.Collections.Orders)
+
+	return nil
+}
+
 // RegisterUser creates a new user
-func (*CcgobblesServer) RegisterUser(ctx context.Context, req *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
+func (c *CcgobblesServer) RegisterUser(ctx context.Context, req *pb.RegisterUserRequest) (*pb.RegisterUserResponse, error) {
 	fmt.Println("Registering User")
 	userReq := req.GetUser()
 	data := &user{}
 	filter := bson.M{"email": userReq.GetEmail()}
-	checkRes := userCollection.FindOne(context.Background(), filter)
+	checkRes := c.userCollection.FindOne(context.Background(), filter)
 	if err := checkRes.Decode(data); err == nil {
 		fmt.Println(data)
 		return nil, status.Errorf(codes.AlreadyExists, fmt.Sprintf("Email already exists: %v\n", userReq.GetEmail()))
 	}
-	_, err := userCollection.InsertOne(context.Background(), bc.CreateUserBson(userReq))
+	_, err := c.userCollection.InsertOne(context.Background(), bc.CreateUserBson(userReq))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Internal error: %v\n", err))
 	}
@@ -74,13 +109,13 @@ func (*CcgobblesServer) RegisterUser(ctx context.Context, req *pb.RegisterUserRe
 }
 
 // LoginUser logs in a user if they enter the right password or username
-func (*CcgobblesServer) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
+func (c *CcgobblesServer) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (*pb.LoginUserResponse, error) {
 	fmt.Println("Sign in request")
 	loginPassword := req.GetPassword()
 	loginEmail := req.GetEmail()
 	data := &user{}
 	filter := bson.M{"email": loginEmail}
-	res := userCollection.FindOne(ctx, filter)
+	res := c.userCollection.FindOne(ctx, filter)
 	if err := res.Decode(data); err != nil {
 		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("Email not found: %v\n", loginEmail))
 	}
@@ -95,17 +130,17 @@ func (*CcgobblesServer) LoginUser(ctx context.Context, req *pb.LoginUserRequest)
 }
 
 // UpdateUser updates user info in the db
-func (*CcgobblesServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
+func (c *CcgobblesServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
 	fmt.Println("Attempting user update")
 
 	userToUpdate := req.GetUser()
 	email := userToUpdate.GetEmail()
 	filter := bson.M{"email": email}
-	res := userCollection.FindOne(ctx, filter)
+	res := c.userCollection.FindOne(ctx, filter)
 	if err := res.Decode(&user{}); err != nil {
 		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("Email not found: %v\n", email))
 	}
-	_, err := userCollection.ReplaceOne(ctx, filter, bc.CreateUserBson(userToUpdate))
+	_, err := c.userCollection.ReplaceOne(ctx, filter, bc.CreateUserBson(userToUpdate))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Cannot update: %v\n", err))
 	}
@@ -115,12 +150,12 @@ func (*CcgobblesServer) UpdateUser(ctx context.Context, req *pb.UpdateUserReques
 }
 
 // DeleteUser deletes the specified user from the db
-func (*CcgobblesServer) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb.DeleteUserResponse, error) {
+func (c *CcgobblesServer) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb.DeleteUserResponse, error) {
 	fmt.Println("Deleting User")
 
 	emailToDelete := req.GetEmail()
 	filter := bson.M{"email": emailToDelete}
-	delRes, delErr := userCollection.DeleteOne(ctx, filter)
+	delRes, delErr := c.userCollection.DeleteOne(ctx, filter)
 	if delErr != nil {
 		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Internal error: %v\n", delErr))
 	}
@@ -133,16 +168,16 @@ func (*CcgobblesServer) DeleteUser(ctx context.Context, req *pb.DeleteUserReques
 }
 
 // AddRestaurant adds a restaurant to the db
-func (*CcgobblesServer) AddRestaurant(ctx context.Context, req *pb.AddRestaurantRequest) (*pb.AddRestaurantResponse, error) {
+func (c *CcgobblesServer) AddRestaurant(ctx context.Context, req *pb.AddRestaurantRequest) (*pb.AddRestaurantResponse, error) {
 	fmt.Println("Adding restaurant")
 
 	resReq := req.GetRestaurant()
 	filter := bson.M{"rest_id": resReq.GetRestId()}
-	checkExist := restCollection.FindOne(ctx, filter)
+	checkExist := c.restCollection.FindOne(ctx, filter)
 	if err := checkExist.Decode(&restaurant{}); err == nil {
 		return nil, status.Errorf(codes.AlreadyExists, fmt.Sprintf("Restaurant already exists: %v\n", resReq.GetRestId()))
 	}
-	_, err := restCollection.InsertOne(ctx, bc.CreateRestBson(resReq))
+	_, err := c.restCollection.InsertOne(ctx, bc.CreateRestBson(resReq))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Internal error: %v\n", err))
 	}
@@ -152,7 +187,7 @@ func (*CcgobblesServer) AddRestaurant(ctx context.Context, req *pb.AddRestaurant
 }
 
 // CreateOrder creates an order given a user, restaurant, and menu items
-func (*CcgobblesServer) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.CreateOrderResponse, error) {
+func (c *CcgobblesServer) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.CreateOrderResponse, error) {
 	// need to add a lot of checks
 
 	fmt.Println("Creating Order")
@@ -162,8 +197,8 @@ func (*CcgobblesServer) CreateOrder(ctx context.Context, req *pb.CreateOrderRequ
 	// check if restaurant exists
 	resFilter := bson.M{"rest_id": req.GetRestId()}
 	userFilter := bson.M{"email": req.GetEmail()}
-	checkExist := restCollection.FindOne(ctx, resFilter)
-	checkUserExist := userCollection.FindOne(ctx, userFilter)
+	checkExist := c.restCollection.FindOne(ctx, resFilter)
+	checkUserExist := c.userCollection.FindOne(ctx, userFilter)
 	if err := checkExist.Decode(&restaurant{}); err != nil {
 		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("Restaurant does not exist: %v\n", req.GetRestId()))
 	}
@@ -175,7 +210,7 @@ func (*CcgobblesServer) CreateOrder(ctx context.Context, req *pb.CreateOrderRequ
 		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("Need more than 1 item"))
 	}
 
-	_, err := orderCollection.InsertOne(ctx, bc.CreateOrderBson(req, dt))
+	_, err := c.orderCollection.InsertOne(ctx, bc.CreateOrderBson(req, dt))
 
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Internal error: %v\n", err))
