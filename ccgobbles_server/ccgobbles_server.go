@@ -173,7 +173,7 @@ func (c *CcgobblesServer) DeleteUser(ctx context.Context, req *pb.DeleteUserRequ
 	filter := bson.M{"email": emailToDelete}
 	delRes, delErr := c.userCollection.DeleteOne(ctx, filter)
 	if delErr != nil {
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("internal error: %v\n", delErr))
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while deleting in mongo: %v\n", delErr))
 	}
 	if delRes.DeletedCount == 0 {
 		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("email not found"))
@@ -185,22 +185,37 @@ func (c *CcgobblesServer) DeleteUser(ctx context.Context, req *pb.DeleteUserRequ
 }
 
 // AddRestaurant adds a restaurant to the db
-func (c *CcgobblesServer) AddRestaurant(ctx context.Context, req *pb.AddRestaurantRequest) (*pb.AddRestaurantResponse, error) {
-	fmt.Println("Adding restaurant")
+func (c *CcgobblesServer) AddRestaurant(_ context.Context, req *pb.AddRestaurantRequest) (*pb.AddRestaurantResponse, error) {
+	log.Info("Adding restaurant")
 
 	resReq := req.GetRestaurant()
-	filter := bson.M{"rest_id": resReq.GetRestId()}
+	emailFilter := bson.M{"email": resReq.GetEmail()}
+	phoneFilter := bson.M{"phone": resReq.GetPhone()}
+	if c.restExists(emailFilter, resReq) || c.restExists(phoneFilter, resReq) {
+		return nil, status.Errorf(codes.AlreadyExists, fmt.Sprintf("restaurant already exists\n"))
+	}
+
+	insCtx, insCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer insCancel()
+	_, err := c.restCollection.InsertOne(insCtx, bc.CreateRestBson(resReq))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while inserting restaurant: %v\n", err))
+	}
+
+	return &pb.AddRestaurantResponse{
+		Response: proto.String("Successfully added restaurant"),
+	}, nil
+}
+
+func (c *CcgobblesServer) restExists(filter bson.M, resReq *pb.Restaurant) bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	checkExist := c.restCollection.FindOne(ctx, filter)
 	if err := checkExist.Decode(&restaurant{}); err == nil {
-		return nil, status.Errorf(codes.AlreadyExists, fmt.Sprintf("Restaurant already exists: %v\n", resReq.GetRestId()))
+		return true
 	}
-	_, err := c.restCollection.InsertOne(ctx, bc.CreateRestBson(resReq))
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Internal error: %v\n", err))
-	}
-	return &pb.AddRestaurantResponse{
-		Response: proto.String("Successfully Added Restaurant"),
-	}, nil
+
+	return false
 }
 
 // CreateOrder creates an order given a user, restaurant, and menu items

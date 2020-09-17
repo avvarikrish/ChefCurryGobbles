@@ -31,16 +31,17 @@ func CreateUserBson(userReq *pb.User) primitive.M {
 func CreateRestBson(resReq *pb.Restaurant) primitive.M {
 	resAddReq := resReq.GetAddress()
 	menu := bson.A{}
-	for _, m := range resReq.GetMenuitem() {
+	for i, m := range resReq.GetMenuitem() {
 		menu = append(menu, bson.M{
-			"menuid": m.GetMenuId(),
+			"menuid": i,
 			"name":   m.GetName(),
 			"price":  m.GetPrice(),
 		})
 	}
 	return bson.M{
-		"rest_id": resReq.GetRestId(),
-		"name":    resReq.GetName(),
+		"phone": resReq.GetPhone(),
+		"email": resReq.GetEmail(),
+		"name":  resReq.GetName(),
 		"address": bson.M{
 			"street_number": resAddReq.GetStreetNumber(),
 			"street":        resAddReq.GetStreet(),

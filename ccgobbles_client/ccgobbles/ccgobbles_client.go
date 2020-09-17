@@ -41,16 +41,16 @@ type DeleteUserRequest struct {
 }
 
 type Restaurant struct {
-	RestId  string
+	Email   string
+	Phone   string
 	Name    string
 	Address Addr
 	Menu    []MenuItem
 }
 
 type MenuItem struct {
-	MenuId string
-	Name   string
-	Price  string
+	Name  string
+	Price string
 }
 
 type CreateOrderRequest struct {
@@ -270,16 +270,16 @@ func addRestaurant(c pb.CCGobblesClient) {
 		f, _ := strconv.ParseFloat(m.Price, 64)
 		fmt.Println(f)
 		menu = append(menu, &pb.MenuItem{
-			MenuId: proto.String(m.MenuId),
-			Name:   proto.String(m.Name),
-			Price:  proto.Float64(f),
+			Name:  proto.String(m.Name),
+			Price: proto.Float64(f),
 		})
 	}
 
 	req := &pb.AddRestaurantRequest{
 		Restaurant: &pb.Restaurant{
-			RestId: proto.String(restaurant.RestId),
-			Name:   proto.String(restaurant.Name),
+			Phone: proto.String(restaurant.Phone),
+			Email: proto.String(restaurant.Email),
+			Name:  proto.String(restaurant.Name),
 			Address: &pb.Address{
 				StreetNumber: proto.String(restaurant.Address.StreetNumber),
 				Street:       proto.String(restaurant.Address.Street),

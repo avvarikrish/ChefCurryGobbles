@@ -16,8 +16,6 @@ fi
 
 # Cleanup
 docker-compose down
-docker rmi chefcurrgobbles_ccgobbles_server
-docker rmi chefcurrgobbles_metrics_server
 
 # push to git
 git push -u origin head:master

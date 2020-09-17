@@ -25,16 +25,16 @@ message User {
 }
 
 message MenuItem {
-    optional string menuId = 1;
-    optional string name = 2;
-    optional double price = 3;
+    optional string name = 1;
+    optional double price = 2;
 }
 
 message Restaurant {
-    optional string restId = 1;
-    optional string name = 2;
-    optional Address address = 3;
-    repeated MenuItem menuitem = 4;
+    optional string phone = 1;
+    optional string email = 2;
+    optional string name = 3;
+    optional Address address = 4;
+    repeated MenuItem menuitem = 5;
 }
 
 message Order {
