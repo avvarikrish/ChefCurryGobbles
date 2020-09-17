@@ -31,6 +31,11 @@ type LoginUserRequest struct {
 	Password string
 }
 
+type UpdateUserRequest struct {
+	OldEmail string
+	NewUser  User
+}
+
 type DeleteUserRequest struct {
 	Email string
 }
@@ -185,23 +190,24 @@ func loginUser(c pb.CCGobblesClient) {
 func updateUser(c pb.CCGobblesClient) {
 	log.Println("Attempting update user")
 
-	t := reflect.TypeOf(User{})
+	t := reflect.TypeOf(UpdateUserRequest{})
 	v := reflect.New(t)
 	input.ReadInput(t, v.Elem())
-	user := v.Interface().(*User)
+	updateRequest := v.Interface().(*UpdateUserRequest)
 
 	req := &pb.UpdateUserRequest{
+		OldEmail: proto.String(updateRequest.OldEmail),
 		User: &pb.User{
-			FirstName: proto.String(user.FirstName),
-			LastName:  proto.String(user.LastName),
-			Email:     proto.String(user.Email),
-			Password:  proto.String(user.Password),
+			FirstName: proto.String(updateRequest.NewUser.FirstName),
+			LastName:  proto.String(updateRequest.NewUser.LastName),
+			Email:     proto.String(updateRequest.NewUser.Email),
+			Password:  proto.String(updateRequest.NewUser.Password),
 			Address: &pb.Address{
-				StreetNumber: proto.String(user.Address.StreetNumber),
-				Street:       proto.String(user.Address.Street),
-				City:         proto.String(user.Address.City),
-				State:        proto.String(user.Address.State),
-				Zip:          proto.String(user.Address.Zip),
+				StreetNumber: proto.String(updateRequest.NewUser.Address.StreetNumber),
+				Street:       proto.String(updateRequest.NewUser.Address.Street),
+				City:         proto.String(updateRequest.NewUser.Address.City),
+				State:        proto.String(updateRequest.NewUser.Address.State),
+				Zip:          proto.String(updateRequest.NewUser.Address.Zip),
 			},
 		},
 	}

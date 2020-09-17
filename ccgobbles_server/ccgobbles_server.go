@@ -125,7 +125,7 @@ func (c *CcgobblesServer) LoginUser(ctx context.Context, req *pb.LoginUserReques
 	filter := bson.M{"email": loginEmail}
 	res := c.userCollection.FindOne(ctx, filter)
 	if err := res.Decode(data); err != nil {
-		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("Email not found: %v\n", loginEmail))
+		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("email not found: %v\n", loginEmail))
 	}
 
 	if loginPassword == data.Password {
@@ -140,40 +140,47 @@ func (c *CcgobblesServer) LoginUser(ctx context.Context, req *pb.LoginUserReques
 }
 
 // UpdateUser updates user info in the db
-func (c *CcgobblesServer) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
-	fmt.Println("Attempting user update")
+func (c *CcgobblesServer) UpdateUser(_ context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
+	log.Info("Update user")
 
-	userToUpdate := req.GetUser()
-	email := userToUpdate.GetEmail()
+	email := req.GetOldEmail()
 	filter := bson.M{"email": email}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 	res := c.userCollection.FindOne(ctx, filter)
 	if err := res.Decode(&user{}); err != nil {
-		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("Email not found: %v\n", email))
+		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("email not found: %v\n", email))
 	}
-	_, err := c.userCollection.ReplaceOne(ctx, filter, bc.CreateUserBson(userToUpdate))
+
+	replaceCtx, replaceCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer replaceCancel()
+	_, err := c.userCollection.ReplaceOne(replaceCtx, filter, bc.CreateUserBson(req.GetUser()))
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Cannot update: %v\n", err))
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while replacing in mongo: %v\n", err))
 	}
+
 	return &pb.UpdateUserResponse{
-		Response: proto.String("Successfully Updated User"),
+		Response: proto.String("Successfully updated user"),
 	}, nil
 }
 
 // DeleteUser deletes the specified user from the db
 func (c *CcgobblesServer) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest) (*pb.DeleteUserResponse, error) {
-	fmt.Println("Deleting User")
+	log.Info("Deleting user")
 
 	emailToDelete := req.GetEmail()
 	filter := bson.M{"email": emailToDelete}
 	delRes, delErr := c.userCollection.DeleteOne(ctx, filter)
 	if delErr != nil {
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Internal error: %v\n", delErr))
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("internal error: %v\n", delErr))
 	}
 	if delRes.DeletedCount == 0 {
-		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("Email not found"))
+		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("email not found"))
 	}
+
 	return &pb.DeleteUserResponse{
-		Response: proto.String("Successfully Deleted User"),
+		Response: proto.String("Successfully deleted user"),
 	}, nil
 }
 

@@ -65,6 +65,7 @@ message LoginUserResponse {
 }
 
 message UpdateUserRequest {
+    optional string oldEmail = 1; 
     optional User user = 2;
 }
 
