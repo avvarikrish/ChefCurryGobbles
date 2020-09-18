@@ -11,7 +11,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/proto"
 
 	"github.com/avvarikrish/chefcurrygobbles/pkg/input"
 
@@ -132,16 +131,16 @@ func registerUser(c pb.CCGobblesClient) {
 
 	req := &pb.RegisterUserRequest{
 		User: &pb.User{
-			FirstName: proto.String(user.FirstName),
-			LastName:  proto.String(user.LastName),
-			Email:     proto.String(user.Email),
-			Password:  proto.String(user.Password),
+			FirstName: user.FirstName,
+			LastName:  user.LastName,
+			Email:     user.Email,
+			Password:  user.Password,
 			Address: &pb.Address{
-				StreetNumber: proto.String(user.Address.StreetNumber),
-				Street:       proto.String(user.Address.Street),
-				City:         proto.String(user.Address.City),
-				State:        proto.String(user.Address.State),
-				Zip:          proto.String(user.Address.Zip),
+				StreetNumber: user.Address.StreetNumber,
+				Street:       user.Address.Street,
+				City:         user.Address.City,
+				State:        user.Address.State,
+				Zip:          user.Address.Zip,
 			},
 		},
 	}
@@ -169,8 +168,8 @@ func loginUser(c pb.CCGobblesClient) {
 	loginRequest := v.Interface().(*LoginUserRequest)
 
 	req := &pb.LoginUserRequest{
-		Email:    proto.String(loginRequest.Email),
-		Password: proto.String(loginRequest.Password),
+		Email:    loginRequest.Email,
+		Password: loginRequest.Password,
 	}
 	res, err := c.LoginUser(context.Background(), req)
 	if err != nil {
@@ -196,18 +195,18 @@ func updateUser(c pb.CCGobblesClient) {
 	updateRequest := v.Interface().(*UpdateUserRequest)
 
 	req := &pb.UpdateUserRequest{
-		OldEmail: proto.String(updateRequest.OldEmail),
+		OldEmail: updateRequest.OldEmail,
 		User: &pb.User{
-			FirstName: proto.String(updateRequest.NewUser.FirstName),
-			LastName:  proto.String(updateRequest.NewUser.LastName),
-			Email:     proto.String(updateRequest.NewUser.Email),
-			Password:  proto.String(updateRequest.NewUser.Password),
+			FirstName: updateRequest.NewUser.FirstName,
+			LastName:  updateRequest.NewUser.LastName,
+			Email:     updateRequest.NewUser.Email,
+			Password:  updateRequest.NewUser.Password,
 			Address: &pb.Address{
-				StreetNumber: proto.String(updateRequest.NewUser.Address.StreetNumber),
-				Street:       proto.String(updateRequest.NewUser.Address.Street),
-				City:         proto.String(updateRequest.NewUser.Address.City),
-				State:        proto.String(updateRequest.NewUser.Address.State),
-				Zip:          proto.String(updateRequest.NewUser.Address.Zip),
+				StreetNumber: updateRequest.NewUser.Address.StreetNumber,
+				Street:       updateRequest.NewUser.Address.Street,
+				City:         updateRequest.NewUser.Address.City,
+				State:        updateRequest.NewUser.Address.State,
+				Zip:          updateRequest.NewUser.Address.Zip,
 			},
 		},
 	}
@@ -238,7 +237,7 @@ func deleteUser(c pb.CCGobblesClient) {
 	deleteUserRequest := v.Interface().(*DeleteUserRequest)
 
 	req := &pb.DeleteUserRequest{
-		Email: proto.String(deleteUserRequest.Email),
+		Email: deleteUserRequest.Email,
 	}
 	res, err := c.DeleteUser(context.Background(), req)
 	if err != nil {
@@ -270,22 +269,22 @@ func addRestaurant(c pb.CCGobblesClient) {
 		f, _ := strconv.ParseFloat(m.Price, 64)
 		fmt.Println(f)
 		menu = append(menu, &pb.MenuItem{
-			Name:  proto.String(m.Name),
-			Price: proto.Float64(f),
+			Name:  m.Name,
+			Price: f,
 		})
 	}
 
 	req := &pb.AddRestaurantRequest{
 		Restaurant: &pb.Restaurant{
-			Phone: proto.String(restaurant.Phone),
-			Email: proto.String(restaurant.Email),
-			Name:  proto.String(restaurant.Name),
+			Phone: restaurant.Phone,
+			Email: restaurant.Email,
+			Name:  restaurant.Name,
 			Address: &pb.Address{
-				StreetNumber: proto.String(restaurant.Address.StreetNumber),
-				Street:       proto.String(restaurant.Address.Street),
-				City:         proto.String(restaurant.Address.City),
-				State:        proto.String(restaurant.Address.State),
-				Zip:          proto.String(restaurant.Address.Zip),
+				StreetNumber: restaurant.Address.StreetNumber,
+				Street:       restaurant.Address.Street,
+				City:         restaurant.Address.City,
+				State:        restaurant.Address.State,
+				Zip:          restaurant.Address.Zip,
 			},
 			Menuitem: menu,
 		},
@@ -321,16 +320,16 @@ func createOrder(c pb.CCGobblesClient) {
 		m, _ := strconv.ParseInt(o.MenuId, 10, 64)
 		i, _ := strconv.ParseInt(o.Quantity, 10, 64)
 		orderItems = append(orderItems, &pb.OrderItem{
-			MenuId:   proto.Int64(m),
-			Quantity: proto.Int64(i),
+			MenuId:   m,
+			Quantity: i,
 		})
 	}
 
 	req := &pb.CreateOrderRequest{
 		Order: &pb.Order{
-			Email:     proto.String(order.Email),
-			RestPhone: proto.String(order.RestPhone),
-			RestEmail: proto.String(order.RestEmail),
+			Email:     order.Email,
+			RestPhone: order.RestPhone,
+			RestEmail: order.RestEmail,
 			OrderItem: orderItems,
 		},
 	}

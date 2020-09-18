@@ -11,7 +11,6 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/proto"
 
 	"github.com/avvarikrish/chefcurrygobbles/ccgobbles_server/config"
 	bc "github.com/avvarikrish/chefcurrygobbles/pkg/bsonconversion"
@@ -96,7 +95,7 @@ func (c *CcgobblesServer) RegisterUser(_ context.Context, req *pb.RegisterUserRe
 	}
 
 	return &pb.RegisterUserResponse{
-		Response: proto.String("Successfully Added User"),
+		Response: "Successfully Added User",
 	}, nil
 }
 
@@ -115,12 +114,12 @@ func (c *CcgobblesServer) LoginUser(ctx context.Context, req *pb.LoginUserReques
 
 	if loginPassword == data.Password {
 		return &pb.LoginUserResponse{
-			Response: proto.Bool(true),
+			Response: true,
 		}, nil
 	}
 
 	return &pb.LoginUserResponse{
-		Response: proto.Bool(false),
+		Response: false,
 	}, nil
 }
 
@@ -146,7 +145,7 @@ func (c *CcgobblesServer) UpdateUser(_ context.Context, req *pb.UpdateUserReques
 	}
 
 	return &pb.UpdateUserResponse{
-		Response: proto.String("Successfully updated user"),
+		Response: "Successfully updated user",
 	}, nil
 }
 
@@ -165,7 +164,7 @@ func (c *CcgobblesServer) DeleteUser(ctx context.Context, req *pb.DeleteUserRequ
 	}
 
 	return &pb.DeleteUserResponse{
-		Response: proto.String("Successfully deleted user"),
+		Response: "Successfully deleted user",
 	}, nil
 }
 
@@ -188,7 +187,7 @@ func (c *CcgobblesServer) AddRestaurant(_ context.Context, req *pb.AddRestaurant
 	}
 
 	return &pb.AddRestaurantResponse{
-		Response: proto.String("Successfully added restaurant"),
+		Response: "Successfully added restaurant",
 	}, nil
 }
 
@@ -228,11 +227,11 @@ func (c *CcgobblesServer) CreateOrder(_ context.Context, req *pb.CreateOrderRequ
 	_, err := c.orderCollection.InsertOne(ctxIns, bc.CreateOrderBson(req, resObj.ID, userObj.ID))
 
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Internal error: %v", err))
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("internal error: %v", err))
 	}
 
 	return &pb.CreateOrderResponse{
-		Response: proto.String("Successfully created order"),
+		Response: "Successfully created order",
 	}, nil
 }
 
