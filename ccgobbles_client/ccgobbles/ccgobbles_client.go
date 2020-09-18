@@ -55,8 +55,8 @@ type MenuItem struct {
 
 type CreateOrderRequest struct {
 	Email     string
-	RestId    string
-	OrderId   string
+	RestEmail string
+	RestPhone string
 	OrderItem []oItem
 }
 
@@ -318,18 +318,21 @@ func createOrder(c pb.CCGobblesClient) {
 
 	orderItems := []*pb.OrderItem{}
 	for _, o := range order.OrderItem {
+		m, _ := strconv.ParseInt(o.MenuId, 10, 64)
 		i, _ := strconv.ParseInt(o.Quantity, 10, 64)
 		orderItems = append(orderItems, &pb.OrderItem{
-			MenuId:   proto.String(o.MenuId),
+			MenuId:   proto.Int64(m),
 			Quantity: proto.Int64(i),
 		})
 	}
 
 	req := &pb.CreateOrderRequest{
-		Email:     proto.String(order.Email),
-		RestId:    proto.String(order.RestId),
-		OrderId:   proto.String(order.OrderId),
-		OrderItem: orderItems,
+		Order: &pb.Order{
+			Email:     proto.String(order.Email),
+			RestPhone: proto.String(order.RestPhone),
+			RestEmail: proto.String(order.RestEmail),
+			OrderItem: orderItems,
+		},
 	}
 	res, err := c.CreateOrder(context.Background(), req)
 	if err != nil {

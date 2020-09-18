@@ -7,7 +7,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc/codes"
@@ -30,20 +29,6 @@ type CcgobblesServer struct {
 	userCollection  *mongo.Collection
 	restCollection  *mongo.Collection
 	orderCollection *mongo.Collection
-}
-
-type user struct {
-	ID        primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
-	FirstName string             `bson:"first_name" json:"first_name"`
-	LastName  string             `bson:"last_name" json:"last_name"`
-	Email     string             `bson:"email" json:"email"`
-	Password  string             `bson:"password" json:"password"`
-}
-
-type restaurant struct {
-	ID     primitive.ObjectID `bson:"_id,omitempty"`
-	RestID string             `bson:"rest_id"`
-	Name   string             `bson:"name"`
 }
 
 // New returns a new initialized instance of CCGobblesServer.
@@ -93,21 +78,21 @@ func (c *CcgobblesServer) RegisterUser(_ context.Context, req *pb.RegisterUserRe
 	log.Info("Registering user")
 
 	userReq := req.GetUser()
-	data := &user{}
+	data := &bc.User{}
 	filter := bson.M{"email": userReq.GetEmail()}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	checkRes := c.userCollection.FindOne(ctx, filter)
 	if err := checkRes.Decode(data); err == nil {
-		return nil, status.Errorf(codes.AlreadyExists, fmt.Sprintf("email already exists: %v\n", userReq.GetEmail()))
+		return nil, status.Errorf(codes.AlreadyExists, fmt.Sprintf("email already exists: %v", userReq.GetEmail()))
 	}
 
 	insCtx, insCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer insCancel()
 	_, err := c.userCollection.InsertOne(insCtx, bc.CreateUserBson(userReq))
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while inserting into mongo: %v\n", err))
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while inserting into mongo: %v", err))
 	}
 
 	return &pb.RegisterUserResponse{
@@ -121,11 +106,11 @@ func (c *CcgobblesServer) LoginUser(ctx context.Context, req *pb.LoginUserReques
 
 	loginPassword := req.GetPassword()
 	loginEmail := req.GetEmail()
-	data := &user{}
+	data := &bc.User{}
 	filter := bson.M{"email": loginEmail}
 	res := c.userCollection.FindOne(ctx, filter)
 	if err := res.Decode(data); err != nil {
-		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("email not found: %v\n", loginEmail))
+		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("email not found: %v", loginEmail))
 	}
 
 	if loginPassword == data.Password {
@@ -149,15 +134,15 @@ func (c *CcgobblesServer) UpdateUser(_ context.Context, req *pb.UpdateUserReques
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	res := c.userCollection.FindOne(ctx, filter)
-	if err := res.Decode(&user{}); err != nil {
-		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("email not found: %v\n", email))
+	if err := res.Decode(&bc.User{}); err != nil {
+		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("email not found: %v", email))
 	}
 
 	replaceCtx, replaceCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer replaceCancel()
 	_, err := c.userCollection.ReplaceOne(replaceCtx, filter, bc.CreateUserBson(req.GetUser()))
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while replacing in mongo: %v\n", err))
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while replacing in mongo: %v", err))
 	}
 
 	return &pb.UpdateUserResponse{
@@ -173,7 +158,7 @@ func (c *CcgobblesServer) DeleteUser(ctx context.Context, req *pb.DeleteUserRequ
 	filter := bson.M{"email": emailToDelete}
 	delRes, delErr := c.userCollection.DeleteOne(ctx, filter)
 	if delErr != nil {
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while deleting in mongo: %v\n", delErr))
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while deleting in mongo: %v", delErr))
 	}
 	if delRes.DeletedCount == 0 {
 		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("email not found"))
@@ -189,17 +174,17 @@ func (c *CcgobblesServer) AddRestaurant(_ context.Context, req *pb.AddRestaurant
 	log.Info("Adding restaurant")
 
 	resReq := req.GetRestaurant()
-	emailFilter := bson.M{"email": resReq.GetEmail()}
-	phoneFilter := bson.M{"phone": resReq.GetPhone()}
-	if c.restExists(emailFilter, resReq) || c.restExists(phoneFilter, resReq) {
-		return nil, status.Errorf(codes.AlreadyExists, fmt.Sprintf("restaurant already exists\n"))
+	emailFilterRes := c.restExists(bson.M{"email": resReq.GetEmail()})
+	phoneFilterRes := c.restExists(bson.M{"phone": resReq.GetPhone()})
+	if emailFilterRes != nil || phoneFilterRes != nil {
+		return nil, status.Errorf(codes.AlreadyExists, fmt.Sprintf("restaurant already exists"))
 	}
 
 	insCtx, insCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer insCancel()
 	_, err := c.restCollection.InsertOne(insCtx, bc.CreateRestBson(resReq))
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while inserting restaurant: %v\n", err))
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while inserting restaurant: %v", err))
 	}
 
 	return &pb.AddRestaurantResponse{
@@ -207,48 +192,58 @@ func (c *CcgobblesServer) AddRestaurant(_ context.Context, req *pb.AddRestaurant
 	}, nil
 }
 
-func (c *CcgobblesServer) restExists(filter bson.M, resReq *pb.Restaurant) bool {
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	checkExist := c.restCollection.FindOne(ctx, filter)
-	if err := checkExist.Decode(&restaurant{}); err == nil {
-		return true
-	}
-
-	return false
-}
-
 // CreateOrder creates an order given a user, restaurant, and menu items
-func (c *CcgobblesServer) CreateOrder(ctx context.Context, req *pb.CreateOrderRequest) (*pb.CreateOrderResponse, error) {
-	// need to add a lot of checks
+func (c *CcgobblesServer) CreateOrder(_ context.Context, req *pb.CreateOrderRequest) (*pb.CreateOrderResponse, error) {
+	log.Info("Creating Order")
 
-	fmt.Println("Creating Order")
+	orderReq := req.GetOrder()
+	resPhoneFilterRes := c.restExists(bson.M{"phone": orderReq.GetRestPhone()})
+	resEmailFilterRes := c.restExists(bson.M{"email": orderReq.GetRestEmail()})
+	userFilter := bson.M{"email": orderReq.GetEmail()}
 
-	dt := time.Now()
+	ctxUser, cancelUser := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancelUser()
+	checkUserExist := c.userCollection.FindOne(ctxUser, userFilter)
 
-	// check if restaurant exists
-	resFilter := bson.M{"rest_id": req.GetRestId()}
-	userFilter := bson.M{"email": req.GetEmail()}
-	checkExist := c.restCollection.FindOne(ctx, resFilter)
-	checkUserExist := c.userCollection.FindOne(ctx, userFilter)
-	if err := checkExist.Decode(&restaurant{}); err != nil {
-		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("Restaurant does not exist: %v\n", req.GetRestId()))
+	resObj := &bc.Restaurant{}
+	userObj := &bc.User{}
+	if resPhoneFilterRes != nil {
+		resObj = resPhoneFilterRes
+	} else if resEmailFilterRes != nil {
+		resObj = resEmailFilterRes
+	} else {
+		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("restaurant does not exist"))
 	}
-	if err := checkUserExist.Decode(&user{}); err != nil {
-		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("User does not exist: %v\n", req.GetEmail()))
+
+	if err := checkUserExist.Decode(userObj); err != nil {
+		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("user does not exist: %v", orderReq.GetEmail()))
 	}
 
-	if len(req.GetOrderItem()) <= 0 {
-		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("Need more than 1 item"))
+	if len(orderReq.GetOrderItem()) <= 0 {
+		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("need more than 1 item"))
 	}
 
-	_, err := c.orderCollection.InsertOne(ctx, bc.CreateOrderBson(req, dt))
+	ctxIns, cancelIns := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancelIns()
+	_, err := c.orderCollection.InsertOne(ctxIns, bc.CreateOrderBson(req, resObj.ID, userObj.ID))
 
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Internal error: %v\n", err))
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("Internal error: %v", err))
 	}
 
 	return &pb.CreateOrderResponse{
 		Response: proto.String("Successfully created order"),
 	}, nil
+}
+
+func (c *CcgobblesServer) restExists(filter bson.M) *bc.Restaurant {
+	resObj := &bc.Restaurant{}
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	checkExist := c.restCollection.FindOne(ctx, filter)
+	if err := checkExist.Decode(resObj); err == nil {
+		return resObj
+	}
+
+	return nil
 }

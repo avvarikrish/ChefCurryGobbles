@@ -1,72 +1,113 @@
 package bsonconversion
 
 import (
-	"time"
-
-	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	pb "github.com/avvarikrish/chefcurrygobbles/proto/ccgobbles_server"
 )
 
+type User struct {
+	ID        primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
+	FirstName string             `bson:"first_name" json:"first_name"`
+	LastName  string             `bson:"last_name" json:"last_name"`
+	Email     string             `bson:"email" json:"email"`
+	Password  string             `bson:"password" json:"password"`
+	Address   Addr               `bson:"address" json:"address"`
+}
+
+type Restaurant struct {
+	ID      primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
+	Email   string             `bson:"email,omitempty" json:"email,omitempty"`
+	Phone   string             `bson:"phone,omitempty" json:"phone,omitempty"`
+	Name    string             `bson:"name" json:"name"`
+	Address Addr               `bson:"address" json:"address"`
+	Menu    []MenuItem         `bson:"menu" json:"menu"`
+}
+
+type Order struct {
+	ID     primitive.ObjectID `bson:"_id,omitempty" json:"_id,omitempty"`
+	RestID primitive.ObjectID `bson:"rest_id" json:"rest_id"`
+	UserID primitive.ObjectID `bson:"user_id" json:"user_id"`
+	Items  []OrderItem        `bson:"items" json:"items"`
+}
+
+type Addr struct {
+	StreetNumber string `bson:"street_number" json:"street_number"`
+	Street       string `bson:"street" json:"street"`
+	City         string `bson:"city" json:"city"`
+	State        string `bson:"state" json:"state"`
+	Zip          string `bson:"zip" json:"zip"`
+}
+
+type MenuItem struct {
+	Id    int     `bson:"menu_id" json:"menu_id"`
+	Name  string  `bson:"item_name" json:"item_name"`
+	Price float64 `bson:"price" json:"price"`
+}
+
+type OrderItem struct {
+	MenuId   int `bson:"menu_id" json:"menu_id"`
+	Quantity int `bson:"quantity" json:"quantity"`
+}
+
 // CreateUserBson creates a bson object of user data
-func CreateUserBson(userReq *pb.User) primitive.M {
+func CreateUserBson(userReq *pb.User) User {
 	userAddReq := userReq.GetAddress()
-	return bson.M{
-		"first_name": userReq.GetFirstName(),
-		"last_name":  userReq.GetLastName(),
-		"email":      userReq.GetEmail(),
-		"password":   userReq.GetPassword(),
-		"address": bson.M{
-			"street_number": userAddReq.GetStreetNumber(),
-			"street":        userAddReq.GetStreet(),
-			"city":          userAddReq.GetCity(),
-			"state":         userAddReq.GetState(),
-			"zip":           userAddReq.GetZip(),
+	return User{
+		FirstName: userReq.GetFirstName(),
+		LastName:  userReq.GetLastName(),
+		Email:     userReq.GetEmail(),
+		Password:  userReq.GetPassword(),
+		Address: Addr{
+			StreetNumber: userAddReq.GetStreetNumber(),
+			Street:       userAddReq.GetStreet(),
+			City:         userAddReq.GetCity(),
+			State:        userAddReq.GetState(),
+			Zip:          userAddReq.GetZip(),
 		},
 	}
 }
 
 // CreateRestBson creates a bson object of restaurant data
-func CreateRestBson(resReq *pb.Restaurant) primitive.M {
+func CreateRestBson(resReq *pb.Restaurant) Restaurant {
 	resAddReq := resReq.GetAddress()
-	menu := bson.A{}
+	menu := []MenuItem{}
 	for i, m := range resReq.GetMenuitem() {
-		menu = append(menu, bson.M{
-			"menuid": i,
-			"name":   m.GetName(),
-			"price":  m.GetPrice(),
+		menu = append(menu, MenuItem{
+			Id:    i,
+			Name:  m.GetName(),
+			Price: m.GetPrice(),
 		})
 	}
-	return bson.M{
-		"phone": resReq.GetPhone(),
-		"email": resReq.GetEmail(),
-		"name":  resReq.GetName(),
-		"address": bson.M{
-			"street_number": resAddReq.GetStreetNumber(),
-			"street":        resAddReq.GetStreet(),
-			"city":          resAddReq.GetCity(),
-			"state":         resAddReq.GetState(),
-			"zip":           resAddReq.GetZip(),
+	return Restaurant{
+		Phone: resReq.GetPhone(),
+		Email: resReq.GetEmail(),
+		Name:  resReq.GetName(),
+		Address: Addr{
+			StreetNumber: resAddReq.GetStreetNumber(),
+			Street:       resAddReq.GetStreet(),
+			City:         resAddReq.GetCity(),
+			State:        resAddReq.GetState(),
+			Zip:          resAddReq.GetZip(),
 		},
-		"menu": menu,
+		Menu: menu,
 	}
 }
 
 // CreateOrderBson creates a bson object of order data
-func CreateOrderBson(orderReq *pb.CreateOrderRequest, dt time.Time) primitive.M {
-	items := bson.A{}
+func CreateOrderBson(req *pb.CreateOrderRequest, restId primitive.ObjectID, usrId primitive.ObjectID) Order {
+	items := []OrderItem{}
+	orderReq := req.GetOrder()
+
 	for _, o := range orderReq.GetOrderItem() {
-		items = append(items, bson.M{
-			"menuid":   o.GetMenuId(),
-			"quantity": o.GetQuantity(),
+		items = append(items, OrderItem{
+			MenuId:   int(o.GetMenuId()),
+			Quantity: int(o.GetQuantity()),
 		})
 	}
-	return bson.M{
-		"order_id": orderReq.GetOrderId(),
-		"email":    orderReq.GetEmail(),
-		"rest_id":  orderReq.GetRestId(),
-		"items":    items,
-		"time":     dt,
+	return Order{
+		UserID: usrId,
+		RestID: restId,
+		Items:  items,
 	}
 }
