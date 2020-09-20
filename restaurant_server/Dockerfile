@@ -3,13 +3,13 @@ FROM golang:1.12.17
 ENV GO111MODULE=on
 
 # create project directory
-RUN mkdir -p /go/src/github.com/avvarikrish/chefcurrygobbles
+RUN mkdir -p /go/src/github.com/avvarikrish/chefcurrygobbles/config
 
 # copy project into container
-COPY ./ccgobbles_server /go/src/github.com/avvarikrish/chefcurrygobbles/ccgobbles_server
+COPY ./restaurant_server /go/src/github.com/avvarikrish/chefcurrygobbles/restaurant_server
 
 # copy config into container
-COPY ./config /go/src/github.com/avvarikrish/chefcurrygobbles/config
+COPY ./config/restaurant_server.yml /go/src/github.com/avvarikrish/chefcurrygobbles/config
 
 # copy pkg and proto
 COPY ./pkg /go/src/github.com/avvarikrish/chefcurrygobbles/pkg
@@ -25,8 +25,8 @@ RUN go mod init
 RUN go mod tidy
 
 # give executable permission to run command
-RUN chmod +x ccgobbles_server/run.sh
+RUN chmod +x restaurant_server/run.sh
 
 EXPOSE 50051
 
-CMD ["ccgobbles_server/run.sh"]
+CMD ["restaurant_server/run.sh"]

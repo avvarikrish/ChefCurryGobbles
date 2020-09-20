@@ -3,7 +3,9 @@ package bsonconversion
 import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
-	pb "github.com/avvarikrish/chefcurrygobbles/proto/ccgobbles_server"
+	opb "github.com/avvarikrish/chefcurrygobbles/proto/orders_server"
+	rpb "github.com/avvarikrish/chefcurrygobbles/proto/restaurant_server"
+	pb "github.com/avvarikrish/chefcurrygobbles/proto/users_server"
 )
 
 type User struct {
@@ -69,7 +71,7 @@ func CreateUserBson(userReq *pb.User) User {
 }
 
 // CreateRestBson creates a bson object of restaurant data
-func CreateRestBson(resReq *pb.Restaurant) Restaurant {
+func CreateRestBson(resReq *rpb.Restaurant) Restaurant {
 	resAddReq := resReq.GetAddress()
 	menu := []MenuItem{}
 	for i, m := range resReq.GetMenuitem() {
@@ -95,7 +97,7 @@ func CreateRestBson(resReq *pb.Restaurant) Restaurant {
 }
 
 // CreateOrderBson creates a bson object of order data
-func CreateOrderBson(req *pb.CreateOrderRequest, restId primitive.ObjectID, usrId primitive.ObjectID) Order {
+func CreateOrderBson(req *opb.CreateOrderRequest, restId primitive.ObjectID, usrId primitive.ObjectID) Order {
 	items := []OrderItem{}
 	orderReq := req.GetOrder()
 

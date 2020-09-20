@@ -8,7 +8,7 @@ import (
 
 func TestCcgobblesServerConfig(t *testing.T) {
 	got := NewConfig("./basic.yml")
-	want := CcgobblesServerConfig{
+	want := RestaurantServerConfig{
 		Mongo: mongo{
 			MongoServer: "mongodb://mongodb:27017",
 			Database:    "chefcurrygobbles",

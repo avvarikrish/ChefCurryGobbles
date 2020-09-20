@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-type CcgobblesServerConfig struct {
+type OrdersServerConfig struct {
 	Mongo  mongo
 	Server server
 }
@@ -30,13 +30,13 @@ type mongoCollections struct {
 }
 
 // NewConfig initializes a new config object
-func NewConfig(file string) CcgobblesServerConfig {
+func NewConfig(file string) OrdersServerConfig {
 	v := viper.New()
 	v.SetConfigFile(file)
 	if err := v.ReadInConfig(); err != nil {
 		log.Errorf("error reading config: %v", err)
 	}
-	return CcgobblesServerConfig{
+	return OrdersServerConfig{
 		Mongo:  newMongo(v.Sub("mongo")),
 		Server: newServer(v.Sub("server")),
 	}

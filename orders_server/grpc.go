@@ -1,4 +1,4 @@
-package ccgobblesserver
+package orders_server
 
 import (
 	"context"
@@ -10,28 +10,28 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 	"google.golang.org/grpc"
 
-	pb "github.com/avvarikrish/chefcurrygobbles/proto/ccgobbles_server"
+	pb "github.com/avvarikrish/chefcurrygobbles/proto/orders_server"
 )
 
-func (c *CcgobblesServer) startGRPC() error {
-	if !c.initialized {
+func (o *OrdersServer) startGRPC() error {
+	if !o.initialized {
 		return fmt.Errorf("server not initialized")
 	}
 
-	lis, err := net.Listen(c.cfg.Server.Network, c.cfg.Server.Address)
+	lis, err := net.Listen(o.cfg.Server.Network, o.cfg.Server.Address)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	server := grpc.NewServer()
-	pb.RegisterCCGobblesServer(server, c)
+	pb.RegisterOrdersServer(server, o)
 
 	go func() {
-		if err := c.connectToMongo(); err != nil {
+		if err := o.connectToMongo(); err != nil {
 			log.Fatalf("Error while connecting to Mongo: %v", err)
 		}
 	}()
 	go func() {
-		fmt.Println("Starting Server")
+		log.Info("Starting Server")
 		if err := server.Serve(lis); err != nil {
 			log.Fatalf("Failed to serve: %v\n", err)
 		}
@@ -41,19 +41,19 @@ func (c *CcgobblesServer) startGRPC() error {
 	select {}
 }
 
-func (c *CcgobblesServer) connectToMongo() error {
+func (o *OrdersServer) connectToMongo() error {
 	log.Info("Connecting to Mongo")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	err := c.mongoClient.Connect(ctx)
+	err := o.mongoClient.Connect(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to connect to mongodb: %v", err)
 	}
 
 	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
-	if err = c.mongoClient.Ping(ctx, readpref.Primary()); err != nil {
+	if err = o.mongoClient.Ping(ctx, readpref.Primary()); err != nil {
 		return fmt.Errorf("could not ping to mongo db service: %v", err)
 	}
 

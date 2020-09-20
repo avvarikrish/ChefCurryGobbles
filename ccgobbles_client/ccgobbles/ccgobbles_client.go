@@ -14,7 +14,9 @@ import (
 
 	"github.com/avvarikrish/chefcurrygobbles/pkg/input"
 
-	pb "github.com/avvarikrish/chefcurrygobbles/proto/ccgobbles_server"
+	opb "github.com/avvarikrish/chefcurrygobbles/proto/orders_server"
+	rpb "github.com/avvarikrish/chefcurrygobbles/proto/restaurant_server"
+	pb "github.com/avvarikrish/chefcurrygobbles/proto/users_server"
 )
 
 type User struct {
@@ -75,55 +77,54 @@ type Addr struct {
 func main() {
 	log.Println("Hello I'm a ccgobbles client")
 
+	input_func := os.Args[1]
+	func_to_run, port := whichFunction(input_func)
+	if func_to_run == nil {
+		log.Fatalf("Invalid function: %v", input_func)
+	}
+
 	opts := []grpc.DialOption{
 		grpc.WithInsecure(),
 	}
 
-	cc, err := grpc.Dial("localhost:50051", opts...)
+	cc, err := grpc.Dial("localhost:"+port, opts...)
 	if err != nil {
 		log.Fatalf("could not connect: %v", err)
 	}
 	defer cc.Close()
 
-	c := pb.NewCCGobblesClient(cc)
-
-	input_func := os.Args[1]
-	func_to_run := whichFunction(input_func)
-	if func_to_run == nil {
-		log.Fatalf("Invalid function: %v", input_func)
-	}
-
-	func_to_run(c)
+	func_to_run(cc)
 }
 
-func whichFunction(func_to_run string) func(pb.CCGobblesClient) {
+func whichFunction(func_to_run string) (func(*grpc.ClientConn), string) {
 	switch func_to_run {
 	case "register_user":
-		return registerUser
+		return registerUser, "50051"
 
 	case "login_user":
-		return loginUser
+		return loginUser, "50051"
 
 	case "update_user":
-		return updateUser
+		return updateUser, "50051"
 
 	case "delete_user":
-		return deleteUser
+		return deleteUser, "50051"
 
 	case "add_restaurant":
-		return addRestaurant
+		return addRestaurant, "50052"
 
 	case "create_order":
-		return createOrder
+		return createOrder, "50053"
 
 	default:
-		return nil
+		return nil, ""
 	}
 }
 
-func registerUser(c pb.CCGobblesClient) {
+func registerUser(cc *grpc.ClientConn) {
 	log.Println("Registering user")
 
+	c := pb.NewUsersClient(cc)
 	t := reflect.TypeOf(User{})
 	v := reflect.New(t)
 	input.ReadInput(t, v.Elem())
@@ -159,9 +160,10 @@ func registerUser(c pb.CCGobblesClient) {
 	log.Printf("New user created: %v\n", res)
 }
 
-func loginUser(c pb.CCGobblesClient) {
+func loginUser(cc *grpc.ClientConn) {
 	log.Println("Attempting login")
 
+	c := pb.NewUsersClient(cc)
 	t := reflect.TypeOf(LoginUserRequest{})
 	v := reflect.New(t)
 	input.ReadInput(t, v.Elem())
@@ -186,9 +188,10 @@ func loginUser(c pb.CCGobblesClient) {
 	log.Println(res.GetResponse())
 }
 
-func updateUser(c pb.CCGobblesClient) {
+func updateUser(cc *grpc.ClientConn) {
 	log.Println("Attempting update user")
 
+	c := pb.NewUsersClient(cc)
 	t := reflect.TypeOf(UpdateUserRequest{})
 	v := reflect.New(t)
 	input.ReadInput(t, v.Elem())
@@ -228,9 +231,10 @@ func updateUser(c pb.CCGobblesClient) {
 	log.Println(res.GetResponse())
 }
 
-func deleteUser(c pb.CCGobblesClient) {
+func deleteUser(cc *grpc.ClientConn) {
 	log.Println("Deleting User")
 
+	c := pb.NewUsersClient(cc)
 	t := reflect.TypeOf(DeleteUserRequest{})
 	v := reflect.New(t)
 	input.ReadInput(t, v.Elem())
@@ -256,30 +260,31 @@ func deleteUser(c pb.CCGobblesClient) {
 	log.Println(res.GetResponse())
 }
 
-func addRestaurant(c pb.CCGobblesClient) {
+func addRestaurant(cc *grpc.ClientConn) {
 	log.Println("Adding restaurant")
 
+	c := rpb.NewRestaurantsClient(cc)
 	t := reflect.TypeOf(Restaurant{})
 	v := reflect.New(t)
 	input.ReadInput(t, v.Elem())
 	restaurant := v.Interface().(*Restaurant)
 
-	menu := []*pb.MenuItem{}
+	menu := []*rpb.MenuItem{}
 	for _, m := range restaurant.Menu {
 		f, _ := strconv.ParseFloat(m.Price, 64)
 		fmt.Println(f)
-		menu = append(menu, &pb.MenuItem{
+		menu = append(menu, &rpb.MenuItem{
 			Name:  m.Name,
 			Price: f,
 		})
 	}
 
-	req := &pb.AddRestaurantRequest{
-		Restaurant: &pb.Restaurant{
+	req := &rpb.AddRestaurantRequest{
+		Restaurant: &rpb.Restaurant{
 			Phone: restaurant.Phone,
 			Email: restaurant.Email,
 			Name:  restaurant.Name,
-			Address: &pb.Address{
+			Address: &rpb.Address{
 				StreetNumber: restaurant.Address.StreetNumber,
 				Street:       restaurant.Address.Street,
 				City:         restaurant.Address.City,
@@ -307,26 +312,27 @@ func addRestaurant(c pb.CCGobblesClient) {
 	log.Println(res.GetResponse())
 }
 
-func createOrder(c pb.CCGobblesClient) {
+func createOrder(cc *grpc.ClientConn) {
 	log.Println("Creating order")
 
+	c := opb.NewOrdersClient(cc)
 	t := reflect.TypeOf(CreateOrderRequest{})
 	v := reflect.New(t)
 	input.ReadInput(t, v.Elem())
 	order := v.Interface().(*CreateOrderRequest)
 
-	orderItems := []*pb.OrderItem{}
+	orderItems := []*opb.OrderItem{}
 	for _, o := range order.OrderItem {
 		m, _ := strconv.ParseInt(o.MenuId, 10, 64)
 		i, _ := strconv.ParseInt(o.Quantity, 10, 64)
-		orderItems = append(orderItems, &pb.OrderItem{
+		orderItems = append(orderItems, &opb.OrderItem{
 			MenuId:   m,
 			Quantity: i,
 		})
 	}
 
-	req := &pb.CreateOrderRequest{
-		Order: &pb.Order{
+	req := &opb.CreateOrderRequest{
+		Order: &opb.Order{
 			Email:     order.Email,
 			RestPhone: order.RestPhone,
 			RestEmail: order.RestEmail,

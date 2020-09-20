@@ -26,13 +26,29 @@ services:
         volumes:
             - ./data/grafana:/var/lib/grafana
         
-    ccgobbles_server:
-        container_name: ccgobbles_server
+    users_server:
+        container_name: users_server
         build: 
             context: .
-            dockerfile: ./ccgobbles_server/Dockerfile
+            dockerfile: ./users_server/Dockerfile
         ports:
             - 50051:50051
+        
+    restaurant_server:
+        container_name: restaurant_server
+        build: 
+            context: .
+            dockerfile: ./restaurant_server/Dockerfile
+        ports:
+            - 50052:50052
+
+    orders_server:
+        container_name: orders_server
+        build: 
+            context: .
+            dockerfile: ./orders_server/Dockerfile
+        ports:
+            - 50053:50053
 
     # metrics_server:
     #     container_name: metrics_server

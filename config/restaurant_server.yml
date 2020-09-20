@@ -1,0 +1,11 @@
+mongo:
+  mongo_server: 'mongodb://mongodb:27017'
+  database: 'chefcurrygobbles'
+  collections:
+    users: 'Users'
+    restaurants: 'Restaurants'
+    orders: 'Orders'
+
+server:
+  network: 'tcp'
+  address: ':50052'

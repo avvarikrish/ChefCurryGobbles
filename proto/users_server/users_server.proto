@@ -1,0 +1,69 @@
+syntax="proto3";
+
+package users_server;
+option go_package = "proto/users_server";
+
+message User {
+    string firstName = 1;
+    string lastName = 2;
+    string email = 3;
+    string password = 4;
+    Address address = 5;
+}
+
+message Address {
+    string streetNumber = 1;
+    string street = 2;
+    string city = 3;
+    string state = 4;
+    string zip = 5;
+}
+
+message RegisterUserRequest {
+    User user = 1;
+}
+
+message RegisterUserResponse {
+    string response = 1;
+}
+
+message LoginUserRequest {
+    string email = 1;
+    string password = 2;
+}
+
+message LoginUserResponse {
+    bool response = 1;
+}
+
+message UpdateUserRequest {
+    string oldEmail = 1; 
+    User user = 2;
+}
+
+message UpdateUserResponse {
+    string response = 1;
+}
+
+message DeleteUserRequest {
+    string email = 1;
+}
+
+message DeleteUserResponse {
+    string response = 1;
+}
+
+
+service Users {
+    // Unary API to register user
+    rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse) {};
+
+    // // Unary API to login user
+    rpc LoginUser (LoginUserRequest) returns (LoginUserResponse) {};
+
+    // // Unary API to update user
+    rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {};
+
+    // // Unary API to delete user
+    rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {};
+}

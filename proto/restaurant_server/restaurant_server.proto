@@ -1,0 +1,50 @@
+syntax="proto3";
+
+package restaurant_server;
+option go_package = "proto/restaurant_server";
+
+message Restaurant {
+    string phone = 1;
+    string email = 2;
+    string name = 3;
+    Address address = 4;
+    repeated MenuItem menuitem = 5;
+}
+
+message Address {
+    string streetNumber = 1;
+    string street = 2;
+    string city = 3;
+    string state = 4;
+    string zip = 5;
+}
+
+message MenuItem {
+    string name = 1;
+    double price = 2;
+}
+
+message AddRestaurantRequest {
+    Restaurant restaurant = 1;
+}
+
+message AddRestaurantResponse {
+    string response = 1;
+}
+
+message AddMenuRequest {
+    string restId = 1;
+    repeated MenuItem item = 2;
+}
+
+message AddMenuResponse {
+    string response = 1;
+}
+
+service Restaurants {
+    // // Unary API to add restaurant
+    rpc AddRestaurant (AddRestaurantRequest) returns (AddRestaurantResponse) {};
+
+    // // Unary API to add menu
+    // rpc AddMenu (AddMenuRequest) returns (AddMenuResponse) {};
+}
