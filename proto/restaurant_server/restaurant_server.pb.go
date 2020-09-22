@@ -291,86 +291,180 @@ func (m *AddRestaurantResponse) GetResponse() string {
 	return ""
 }
 
-type AddMenuRequest struct {
-	RestId               string      `protobuf:"bytes,1,opt,name=restId,proto3" json:"restId,omitempty"`
-	Item                 []*MenuItem `protobuf:"bytes,2,rep,name=item,proto3" json:"item,omitempty"`
+type UpdateRestaurantRequest struct {
+	OldEmail             string      `protobuf:"bytes,1,opt,name=oldEmail,proto3" json:"oldEmail,omitempty"`
+	OldPhone             string      `protobuf:"bytes,2,opt,name=oldPhone,proto3" json:"oldPhone,omitempty"`
+	Restaurant           *Restaurant `protobuf:"bytes,3,opt,name=restaurant,proto3" json:"restaurant,omitempty"`
 	XXX_NoUnkeyedLiteral struct{}    `json:"-"`
 	XXX_unrecognized     []byte      `json:"-"`
 	XXX_sizecache        int32       `json:"-"`
 }
 
-func (m *AddMenuRequest) Reset()         { *m = AddMenuRequest{} }
-func (m *AddMenuRequest) String() string { return proto.CompactTextString(m) }
-func (*AddMenuRequest) ProtoMessage()    {}
-func (*AddMenuRequest) Descriptor() ([]byte, []int) {
+func (m *UpdateRestaurantRequest) Reset()         { *m = UpdateRestaurantRequest{} }
+func (m *UpdateRestaurantRequest) String() string { return proto.CompactTextString(m) }
+func (*UpdateRestaurantRequest) ProtoMessage()    {}
+func (*UpdateRestaurantRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_9b6e153559ae89a4, []int{5}
 }
 
-func (m *AddMenuRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_AddMenuRequest.Unmarshal(m, b)
+func (m *UpdateRestaurantRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateRestaurantRequest.Unmarshal(m, b)
 }
-func (m *AddMenuRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_AddMenuRequest.Marshal(b, m, deterministic)
+func (m *UpdateRestaurantRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateRestaurantRequest.Marshal(b, m, deterministic)
 }
-func (m *AddMenuRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AddMenuRequest.Merge(m, src)
+func (m *UpdateRestaurantRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateRestaurantRequest.Merge(m, src)
 }
-func (m *AddMenuRequest) XXX_Size() int {
-	return xxx_messageInfo_AddMenuRequest.Size(m)
+func (m *UpdateRestaurantRequest) XXX_Size() int {
+	return xxx_messageInfo_UpdateRestaurantRequest.Size(m)
 }
-func (m *AddMenuRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_AddMenuRequest.DiscardUnknown(m)
+func (m *UpdateRestaurantRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateRestaurantRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_AddMenuRequest proto.InternalMessageInfo
+var xxx_messageInfo_UpdateRestaurantRequest proto.InternalMessageInfo
 
-func (m *AddMenuRequest) GetRestId() string {
+func (m *UpdateRestaurantRequest) GetOldEmail() string {
 	if m != nil {
-		return m.RestId
+		return m.OldEmail
 	}
 	return ""
 }
 
-func (m *AddMenuRequest) GetItem() []*MenuItem {
+func (m *UpdateRestaurantRequest) GetOldPhone() string {
 	if m != nil {
-		return m.Item
+		return m.OldPhone
+	}
+	return ""
+}
+
+func (m *UpdateRestaurantRequest) GetRestaurant() *Restaurant {
+	if m != nil {
+		return m.Restaurant
 	}
 	return nil
 }
 
-type AddMenuResponse struct {
+type UpdateRestaurantResponse struct {
 	Response             string   `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *AddMenuResponse) Reset()         { *m = AddMenuResponse{} }
-func (m *AddMenuResponse) String() string { return proto.CompactTextString(m) }
-func (*AddMenuResponse) ProtoMessage()    {}
-func (*AddMenuResponse) Descriptor() ([]byte, []int) {
+func (m *UpdateRestaurantResponse) Reset()         { *m = UpdateRestaurantResponse{} }
+func (m *UpdateRestaurantResponse) String() string { return proto.CompactTextString(m) }
+func (*UpdateRestaurantResponse) ProtoMessage()    {}
+func (*UpdateRestaurantResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_9b6e153559ae89a4, []int{6}
 }
 
-func (m *AddMenuResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_AddMenuResponse.Unmarshal(m, b)
+func (m *UpdateRestaurantResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_UpdateRestaurantResponse.Unmarshal(m, b)
 }
-func (m *AddMenuResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_AddMenuResponse.Marshal(b, m, deterministic)
+func (m *UpdateRestaurantResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_UpdateRestaurantResponse.Marshal(b, m, deterministic)
 }
-func (m *AddMenuResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_AddMenuResponse.Merge(m, src)
+func (m *UpdateRestaurantResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_UpdateRestaurantResponse.Merge(m, src)
 }
-func (m *AddMenuResponse) XXX_Size() int {
-	return xxx_messageInfo_AddMenuResponse.Size(m)
+func (m *UpdateRestaurantResponse) XXX_Size() int {
+	return xxx_messageInfo_UpdateRestaurantResponse.Size(m)
 }
-func (m *AddMenuResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_AddMenuResponse.DiscardUnknown(m)
+func (m *UpdateRestaurantResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_UpdateRestaurantResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_AddMenuResponse proto.InternalMessageInfo
+var xxx_messageInfo_UpdateRestaurantResponse proto.InternalMessageInfo
 
-func (m *AddMenuResponse) GetResponse() string {
+func (m *UpdateRestaurantResponse) GetResponse() string {
+	if m != nil {
+		return m.Response
+	}
+	return ""
+}
+
+type DeleteRestaurantRequest struct {
+	Email                string   `protobuf:"bytes,1,opt,name=email,proto3" json:"email,omitempty"`
+	Phone                string   `protobuf:"bytes,2,opt,name=phone,proto3" json:"phone,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteRestaurantRequest) Reset()         { *m = DeleteRestaurantRequest{} }
+func (m *DeleteRestaurantRequest) String() string { return proto.CompactTextString(m) }
+func (*DeleteRestaurantRequest) ProtoMessage()    {}
+func (*DeleteRestaurantRequest) Descriptor() ([]byte, []int) {
+	return fileDescriptor_9b6e153559ae89a4, []int{7}
+}
+
+func (m *DeleteRestaurantRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteRestaurantRequest.Unmarshal(m, b)
+}
+func (m *DeleteRestaurantRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteRestaurantRequest.Marshal(b, m, deterministic)
+}
+func (m *DeleteRestaurantRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteRestaurantRequest.Merge(m, src)
+}
+func (m *DeleteRestaurantRequest) XXX_Size() int {
+	return xxx_messageInfo_DeleteRestaurantRequest.Size(m)
+}
+func (m *DeleteRestaurantRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteRestaurantRequest.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteRestaurantRequest proto.InternalMessageInfo
+
+func (m *DeleteRestaurantRequest) GetEmail() string {
+	if m != nil {
+		return m.Email
+	}
+	return ""
+}
+
+func (m *DeleteRestaurantRequest) GetPhone() string {
+	if m != nil {
+		return m.Phone
+	}
+	return ""
+}
+
+type DeleteRestaurantResponse struct {
+	Response             string   `protobuf:"bytes,1,opt,name=response,proto3" json:"response,omitempty"`
+	XXX_NoUnkeyedLiteral struct{} `json:"-"`
+	XXX_unrecognized     []byte   `json:"-"`
+	XXX_sizecache        int32    `json:"-"`
+}
+
+func (m *DeleteRestaurantResponse) Reset()         { *m = DeleteRestaurantResponse{} }
+func (m *DeleteRestaurantResponse) String() string { return proto.CompactTextString(m) }
+func (*DeleteRestaurantResponse) ProtoMessage()    {}
+func (*DeleteRestaurantResponse) Descriptor() ([]byte, []int) {
+	return fileDescriptor_9b6e153559ae89a4, []int{8}
+}
+
+func (m *DeleteRestaurantResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_DeleteRestaurantResponse.Unmarshal(m, b)
+}
+func (m *DeleteRestaurantResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_DeleteRestaurantResponse.Marshal(b, m, deterministic)
+}
+func (m *DeleteRestaurantResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_DeleteRestaurantResponse.Merge(m, src)
+}
+func (m *DeleteRestaurantResponse) XXX_Size() int {
+	return xxx_messageInfo_DeleteRestaurantResponse.Size(m)
+}
+func (m *DeleteRestaurantResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_DeleteRestaurantResponse.DiscardUnknown(m)
+}
+
+var xxx_messageInfo_DeleteRestaurantResponse proto.InternalMessageInfo
+
+func (m *DeleteRestaurantResponse) GetResponse() string {
 	if m != nil {
 		return m.Response
 	}
@@ -383,8 +477,10 @@ func init() {
 	proto.RegisterType((*MenuItem)(nil), "restaurant_server.MenuItem")
 	proto.RegisterType((*AddRestaurantRequest)(nil), "restaurant_server.AddRestaurantRequest")
 	proto.RegisterType((*AddRestaurantResponse)(nil), "restaurant_server.AddRestaurantResponse")
-	proto.RegisterType((*AddMenuRequest)(nil), "restaurant_server.AddMenuRequest")
-	proto.RegisterType((*AddMenuResponse)(nil), "restaurant_server.AddMenuResponse")
+	proto.RegisterType((*UpdateRestaurantRequest)(nil), "restaurant_server.UpdateRestaurantRequest")
+	proto.RegisterType((*UpdateRestaurantResponse)(nil), "restaurant_server.UpdateRestaurantResponse")
+	proto.RegisterType((*DeleteRestaurantRequest)(nil), "restaurant_server.DeleteRestaurantRequest")
+	proto.RegisterType((*DeleteRestaurantResponse)(nil), "restaurant_server.DeleteRestaurantResponse")
 }
 
 func init() {
@@ -392,31 +488,36 @@ func init() {
 }
 
 var fileDescriptor_9b6e153559ae89a4 = []byte{
-	// 382 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x53, 0x3d, 0x4f, 0xc3, 0x30,
-	0x14, 0x24, 0xfd, 0xee, 0x0b, 0x9f, 0x56, 0x29, 0xa1, 0x08, 0xa9, 0xf2, 0x42, 0x16, 0x5a, 0x29,
-	0xad, 0xc4, 0xc4, 0x50, 0xb6, 0x0e, 0x30, 0x44, 0x62, 0x80, 0x05, 0xa5, 0xf5, 0x93, 0x88, 0x44,
-	0x3e, 0xb0, 0x1d, 0x24, 0xd8, 0xf8, 0x5d, 0xfc, 0x39, 0x64, 0xc7, 0x49, 0x5b, 0x52, 0xd4, 0xed,
-	0xdd, 0xf9, 0xfc, 0x7a, 0x77, 0x6e, 0x60, 0x9c, 0xf2, 0x44, 0x26, 0x63, 0x8e, 0x42, 0x06, 0x19,
-	0x0f, 0x62, 0xf9, 0x22, 0x90, 0x7f, 0x20, 0xaf, 0x32, 0x23, 0xad, 0x24, 0x27, 0x95, 0x03, 0xfa,
-	0x63, 0x01, 0xf8, 0x25, 0x4b, 0x7a, 0xd0, 0x4c, 0x5f, 0x93, 0x18, 0x1d, 0x6b, 0x68, 0xb9, 0x5d,
-	0x3f, 0x07, 0x8a, 0xc5, 0x28, 0x08, 0xdf, 0x9c, 0x5a, 0xce, 0x6a, 0x40, 0x08, 0x34, 0xe2, 0x20,
-	0x42, 0xa7, 0xae, 0x49, 0x3d, 0x93, 0x29, 0xb4, 0x03, 0xc6, 0x38, 0x0a, 0xe1, 0x34, 0x86, 0x96,
-	0x6b, 0x7b, 0x83, 0x51, 0xd5, 0xcc, 0x2c, 0x57, 0xf8, 0x85, 0x94, 0xdc, 0x40, 0x27, 0xc2, 0x38,
-	0x0b, 0x25, 0x46, 0x4e, 0x73, 0x58, 0x77, 0x6d, 0xef, 0x62, 0xcb, 0xb5, 0x7b, 0x8c, 0xb3, 0xb9,
-	0xc4, 0xc8, 0x2f, 0xc5, 0xf4, 0xdb, 0x82, 0xb6, 0xd9, 0x46, 0x28, 0xec, 0x0b, 0xc9, 0x11, 0xe5,
-	0x43, 0x16, 0x2d, 0x90, 0x9b, 0x04, 0x1b, 0x1c, 0xe9, 0x43, 0x2b, 0xc7, 0x26, 0x89, 0x41, 0x2a,
-	0xca, 0x32, 0x94, 0x9f, 0x45, 0x14, 0x35, 0xab, 0xd0, 0x42, 0x06, 0x12, 0x75, 0x90, 0xae, 0x9f,
-	0x03, 0x72, 0x0c, 0xf5, 0xaf, 0x30, 0x75, 0x9a, 0x9a, 0x53, 0x23, 0x9d, 0x42, 0xa7, 0x70, 0x56,
-	0x56, 0x62, 0xad, 0x55, 0xa2, 0x2a, 0xe5, 0xe1, 0x12, 0xf5, 0x4f, 0x5a, 0x7e, 0x0e, 0xe8, 0x23,
-	0xf4, 0x66, 0x8c, 0xad, 0x9a, 0xf7, 0xf1, 0x3d, 0x43, 0x21, 0xc9, 0x2d, 0xc0, 0x2a, 0xb9, 0xde,
-	0x63, 0x7b, 0x97, 0x5b, 0xca, 0x58, 0xbb, 0xb9, 0x76, 0x81, 0x4e, 0xe0, 0xf4, 0xcf, 0x5a, 0x91,
-	0x26, 0xb1, 0x40, 0x32, 0x80, 0x0e, 0x37, 0xb3, 0x71, 0x57, 0x62, 0xfa, 0x04, 0x87, 0x33, 0xc6,
-	0x54, 0x88, 0xc2, 0x45, 0x1f, 0x5a, 0x6a, 0xe9, 0x9c, 0x19, 0xad, 0x41, 0x64, 0x0c, 0x0d, 0xfd,
-	0x48, 0xb5, 0xdd, 0x8f, 0xa4, 0x85, 0xf4, 0x1a, 0x8e, 0xca, 0xd5, 0xbb, 0x9d, 0x78, 0x02, 0xec,
-	0x95, 0x77, 0x41, 0x18, 0x1c, 0x6c, 0xa4, 0x21, 0x57, 0xdb, 0xff, 0x4d, 0x95, 0x1a, 0x07, 0xee,
-	0x6e, 0xa1, 0x09, 0xbf, 0x77, 0x77, 0xfe, 0x7c, 0xf6, 0xcf, 0x87, 0xb4, 0x68, 0xe9, 0x83, 0xc9,
-	0x6f, 0x00, 0x00, 0x00, 0xff, 0xff, 0x4e, 0xf8, 0x35, 0x42, 0x6a, 0x03, 0x00, 0x00,
+	// 456 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x94, 0x54, 0x4d, 0x8b, 0xd3, 0x40,
+	0x18, 0xde, 0x49, 0xb6, 0xbb, 0xd9, 0x37, 0x0a, 0xeb, 0xb0, 0xda, 0x18, 0x11, 0xca, 0x5c, 0x0c,
+	0x0a, 0xbb, 0x90, 0x16, 0x3d, 0x79, 0xa8, 0xd8, 0x83, 0x07, 0x45, 0x02, 0xbd, 0x78, 0x91, 0xb4,
+	0x79, 0xc1, 0x40, 0xf3, 0xe1, 0xcc, 0x44, 0xd0, 0x9b, 0xff, 0xc0, 0xff, 0xe3, 0xaf, 0xf0, 0x1f,
+	0x49, 0x26, 0x93, 0x34, 0xcd, 0x07, 0xed, 0xde, 0xe6, 0x79, 0xbf, 0x9f, 0xe7, 0x7d, 0x13, 0xb8,
+	0xcb, 0x79, 0x26, 0xb3, 0x3b, 0x8e, 0x42, 0x86, 0x05, 0x0f, 0x53, 0xf9, 0x55, 0x20, 0xff, 0x81,
+	0xbc, 0x6f, 0xb9, 0x55, 0x91, 0xf4, 0x51, 0xcf, 0xc1, 0xfe, 0x12, 0x80, 0xa0, 0xb1, 0xd2, 0x1b,
+	0x98, 0xe4, 0xdf, 0xb2, 0x14, 0x1d, 0x32, 0x23, 0xde, 0x55, 0x50, 0x81, 0xd2, 0x8a, 0x49, 0x18,
+	0xef, 0x1c, 0xa3, 0xb2, 0x2a, 0x40, 0x29, 0x9c, 0xa7, 0x61, 0x82, 0x8e, 0xa9, 0x8c, 0xea, 0x4d,
+	0x17, 0x70, 0x19, 0x46, 0x11, 0x47, 0x21, 0x9c, 0xf3, 0x19, 0xf1, 0x6c, 0xdf, 0xbd, 0xed, 0x0f,
+	0xb3, 0xac, 0x22, 0x82, 0x3a, 0x94, 0xbe, 0x01, 0x2b, 0xc1, 0xb4, 0x88, 0x25, 0x26, 0xce, 0x64,
+	0x66, 0x7a, 0xb6, 0xff, 0x6c, 0x20, 0xed, 0x23, 0xa6, 0xc5, 0x07, 0x89, 0x49, 0xd0, 0x04, 0xb3,
+	0xdf, 0x04, 0x2e, 0x75, 0x35, 0xca, 0xe0, 0x81, 0x90, 0x1c, 0x51, 0x7e, 0x2a, 0x92, 0x0d, 0x72,
+	0xcd, 0xe0, 0xc0, 0x46, 0x9f, 0xc0, 0x45, 0x85, 0x35, 0x13, 0x8d, 0x4a, 0x2a, 0xdb, 0x58, 0xfe,
+	0xac, 0xa9, 0x94, 0xef, 0x92, 0xb4, 0x90, 0xa1, 0x44, 0x45, 0xe4, 0x2a, 0xa8, 0x00, 0xbd, 0x06,
+	0xf3, 0x57, 0x9c, 0x3b, 0x13, 0x65, 0x2b, 0x9f, 0x6c, 0x01, 0x56, 0x3d, 0x59, 0x23, 0x09, 0x69,
+	0x49, 0x52, 0x4a, 0xca, 0xe3, 0x2d, 0xaa, 0x96, 0x24, 0xa8, 0x00, 0x5b, 0xc3, 0xcd, 0x32, 0x8a,
+	0xf6, 0xca, 0x07, 0xf8, 0xbd, 0x40, 0x21, 0xe9, 0x5b, 0x80, 0x3d, 0x73, 0x55, 0xc7, 0xf6, 0x9f,
+	0x0f, 0x88, 0xd1, 0xca, 0x6c, 0x25, 0xb0, 0x39, 0x3c, 0xee, 0x94, 0x15, 0x79, 0x96, 0x0a, 0xa4,
+	0x2e, 0x58, 0x5c, 0xbf, 0xf5, 0x74, 0x0d, 0x66, 0x7f, 0x08, 0x4c, 0xd7, 0x79, 0x14, 0x4a, 0xec,
+	0xcf, 0xe3, 0x82, 0x95, 0xed, 0xa2, 0x95, 0xda, 0xbe, 0xce, 0xab, 0xb1, 0xf6, 0x7d, 0x56, 0xf7,
+	0x62, 0x34, 0x3e, 0x85, 0x3b, 0x3c, 0xcc, 0xfb, 0xf2, 0x78, 0x0d, 0x4e, 0x7f, 0xa2, 0x13, 0xa8,
+	0xac, 0x60, 0xfa, 0x1e, 0x77, 0x38, 0xc4, 0xa4, 0x39, 0x62, 0xd2, 0x3e, 0xe2, 0xe6, 0xe0, 0x8d,
+	0xd6, 0xc1, 0x97, 0xed, 0xfb, 0x65, 0x8e, 0xb7, 0xf7, 0xff, 0x19, 0x60, 0xef, 0x53, 0x04, 0x8d,
+	0xe0, 0xe1, 0xc1, 0x3a, 0xe8, 0x8b, 0xe1, 0xcf, 0xa1, 0x37, 0xad, 0xeb, 0x1d, 0x0f, 0xd4, 0x94,
+	0xcf, 0x68, 0x02, 0xd7, 0x5d, 0xb1, 0xe8, 0xcb, 0x81, 0xfc, 0x91, 0x1d, 0xbb, 0xaf, 0x4e, 0x8a,
+	0x6d, 0xb7, 0xeb, 0x8a, 0x33, 0xd8, 0x6e, 0x64, 0x11, 0x83, 0xed, 0xc6, 0xd4, 0x66, 0x67, 0xef,
+	0x9e, 0x7e, 0x99, 0x8e, 0xfc, 0xe7, 0x36, 0x17, 0xca, 0x31, 0xff, 0x1f, 0x00, 0x00, 0xff, 0xff,
+	0xd0, 0x9d, 0x27, 0xed, 0x09, 0x05, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -431,8 +532,12 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type RestaurantsClient interface {
-	// // Unary API to add restaurant
+	// Unary API to add restaurant
 	AddRestaurant(ctx context.Context, in *AddRestaurantRequest, opts ...grpc.CallOption) (*AddRestaurantResponse, error)
+	// Unary API to update restaurant info
+	UpdateRestaurant(ctx context.Context, in *UpdateRestaurantRequest, opts ...grpc.CallOption) (*UpdateRestaurantResponse, error)
+	// Unary API to delete restaurant
+	DeleteRestaurant(ctx context.Context, in *DeleteRestaurantRequest, opts ...grpc.CallOption) (*DeleteRestaurantResponse, error)
 }
 
 type restaurantsClient struct {
@@ -452,10 +557,32 @@ func (c *restaurantsClient) AddRestaurant(ctx context.Context, in *AddRestaurant
 	return out, nil
 }
 
+func (c *restaurantsClient) UpdateRestaurant(ctx context.Context, in *UpdateRestaurantRequest, opts ...grpc.CallOption) (*UpdateRestaurantResponse, error) {
+	out := new(UpdateRestaurantResponse)
+	err := c.cc.Invoke(ctx, "/restaurant_server.Restaurants/UpdateRestaurant", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *restaurantsClient) DeleteRestaurant(ctx context.Context, in *DeleteRestaurantRequest, opts ...grpc.CallOption) (*DeleteRestaurantResponse, error) {
+	out := new(DeleteRestaurantResponse)
+	err := c.cc.Invoke(ctx, "/restaurant_server.Restaurants/DeleteRestaurant", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RestaurantsServer is the server API for Restaurants service.
 type RestaurantsServer interface {
-	// // Unary API to add restaurant
+	// Unary API to add restaurant
 	AddRestaurant(context.Context, *AddRestaurantRequest) (*AddRestaurantResponse, error)
+	// Unary API to update restaurant info
+	UpdateRestaurant(context.Context, *UpdateRestaurantRequest) (*UpdateRestaurantResponse, error)
+	// Unary API to delete restaurant
+	DeleteRestaurant(context.Context, *DeleteRestaurantRequest) (*DeleteRestaurantResponse, error)
 }
 
 // UnimplementedRestaurantsServer can be embedded to have forward compatible implementations.
@@ -464,6 +591,12 @@ type UnimplementedRestaurantsServer struct {
 
 func (*UnimplementedRestaurantsServer) AddRestaurant(ctx context.Context, req *AddRestaurantRequest) (*AddRestaurantResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddRestaurant not implemented")
+}
+func (*UnimplementedRestaurantsServer) UpdateRestaurant(ctx context.Context, req *UpdateRestaurantRequest) (*UpdateRestaurantResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateRestaurant not implemented")
+}
+func (*UnimplementedRestaurantsServer) DeleteRestaurant(ctx context.Context, req *DeleteRestaurantRequest) (*DeleteRestaurantResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteRestaurant not implemented")
 }
 
 func RegisterRestaurantsServer(s *grpc.Server, srv RestaurantsServer) {
@@ -488,6 +621,42 @@ func _Restaurants_AddRestaurant_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Restaurants_UpdateRestaurant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateRestaurantRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RestaurantsServer).UpdateRestaurant(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/restaurant_server.Restaurants/UpdateRestaurant",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RestaurantsServer).UpdateRestaurant(ctx, req.(*UpdateRestaurantRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Restaurants_DeleteRestaurant_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteRestaurantRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RestaurantsServer).DeleteRestaurant(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/restaurant_server.Restaurants/DeleteRestaurant",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RestaurantsServer).DeleteRestaurant(ctx, req.(*DeleteRestaurantRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 var _Restaurants_serviceDesc = grpc.ServiceDesc{
 	ServiceName: "restaurant_server.Restaurants",
 	HandlerType: (*RestaurantsServer)(nil),
@@ -495,6 +664,14 @@ var _Restaurants_serviceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "AddRestaurant",
 			Handler:    _Restaurants_AddRestaurant_Handler,
+		},
+		{
+			MethodName: "UpdateRestaurant",
+			Handler:    _Restaurants_UpdateRestaurant_Handler,
+		},
+		{
+			MethodName: "DeleteRestaurant",
+			Handler:    _Restaurants_DeleteRestaurant_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

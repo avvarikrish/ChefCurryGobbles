@@ -54,6 +54,17 @@ type MenuItem struct {
 	Price string
 }
 
+type UpdateRestaurantRequest struct {
+	OldEmail      string
+	OldPhone      string
+	NewRestaurant Restaurant
+}
+
+type DeleteRestaurantRequest struct {
+	Email string
+	Phone string
+}
+
 type CreateOrderRequest struct {
 	Email     string
 	RestEmail string
@@ -112,6 +123,12 @@ func whichFunction(func_to_run string) (func(*grpc.ClientConn), string) {
 
 	case "add_restaurant":
 		return addRestaurant, "50052"
+
+	case "update_restaurant":
+		return updateRestaurant, "50052"
+
+	case "delete_restaurant":
+		return deleteRestaurant, "50052"
 
 	case "create_order":
 		return createOrder, "50053"
@@ -308,6 +325,91 @@ func addRestaurant(cc *grpc.ClientConn) {
 			log.Fatalf("Mongodb Error: %v\n", err)
 		}
 		log.Fatalf("Unexpected Error: %v\n", err)
+	}
+	log.Println(res.GetResponse())
+}
+
+func updateRestaurant(cc *grpc.ClientConn) {
+	log.Println("Adding restaurant")
+
+	c := rpb.NewRestaurantsClient(cc)
+	t := reflect.TypeOf(UpdateRestaurantRequest{})
+	v := reflect.New(t)
+	input.ReadInput(t, v.Elem())
+	restaurantUpdateReq := v.Interface().(*UpdateRestaurantRequest)
+	restaurant := restaurantUpdateReq.NewRestaurant
+
+	menu := []*rpb.MenuItem{}
+	for _, m := range restaurantUpdateReq.NewRestaurant.Menu {
+		f, _ := strconv.ParseFloat(m.Price, 64)
+		fmt.Println(f)
+		menu = append(menu, &rpb.MenuItem{
+			Name:  m.Name,
+			Price: f,
+		})
+	}
+
+	req := &rpb.UpdateRestaurantRequest{
+		OldEmail: restaurantUpdateReq.OldEmail,
+		OldPhone: restaurantUpdateReq.OldPhone,
+		Restaurant: &rpb.Restaurant{
+			Phone: restaurant.Phone,
+			Email: restaurant.Email,
+			Name:  restaurant.Name,
+			Address: &rpb.Address{
+				StreetNumber: restaurant.Address.StreetNumber,
+				Street:       restaurant.Address.Street,
+				City:         restaurant.Address.City,
+				State:        restaurant.Address.State,
+				Zip:          restaurant.Address.Zip,
+			},
+			Menuitem: menu,
+		},
+	}
+	res, err := c.UpdateRestaurant(context.Background(), req)
+	if err != nil {
+		s, ok := status.FromError(err)
+		if ok {
+			if s.Code() == codes.Internal {
+				log.Printf("Internal error: %v\n", err)
+				return
+			} else if s.Code() == codes.NotFound {
+				log.Println("Restaurant not found")
+				return
+			}
+			log.Fatalf("Mongodb Error: %v\n", err)
+		}
+		log.Fatalf("Unexpected Error: %v\n", err)
+	}
+	log.Println(res.GetResponse())
+}
+
+func deleteRestaurant(cc *grpc.ClientConn) {
+	log.Println("Deleting Restaurant")
+
+	c := rpb.NewRestaurantsClient(cc)
+	t := reflect.TypeOf(DeleteRestaurantRequest{})
+	v := reflect.New(t)
+	input.ReadInput(t, v.Elem())
+	deleteRestRequest := v.Interface().(*DeleteRestaurantRequest)
+
+	req := &rpb.DeleteRestaurantRequest{
+		Email: deleteRestRequest.Email,
+		Phone: deleteRestRequest.Phone,
+	}
+	res, err := c.DeleteRestaurant(context.Background(), req)
+	if err != nil {
+		s, ok := status.FromError(err)
+		if ok {
+			if s.Code() == codes.Internal {
+				log.Printf("internal error: %v", err)
+				return
+			} else if s.Code() == codes.NotFound {
+				log.Println("rest not found")
+				return
+			}
+		}
+		log.Fatalf("unexpected error: %v", err)
 	}
 	log.Println(res.GetResponse())
 }

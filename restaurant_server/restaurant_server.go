@@ -73,9 +73,7 @@ func (r *RestaurantServer) AddRestaurant(_ context.Context, req *pb.AddRestauran
 	log.Info("Adding restaurant")
 
 	resReq := req.GetRestaurant()
-	emailFilterRes := r.restExists(bson.M{"email": resReq.GetEmail()})
-	phoneFilterRes := r.restExists(bson.M{"phone": resReq.GetPhone()})
-	if emailFilterRes != nil || phoneFilterRes != nil {
+	if r.restExists(resReq.GetEmail(), resReq.GetPhone()) != nil {
 		return nil, status.Errorf(codes.AlreadyExists, fmt.Sprintf("restaurant already exists"))
 	}
 
@@ -91,7 +89,58 @@ func (r *RestaurantServer) AddRestaurant(_ context.Context, req *pb.AddRestauran
 	}, nil
 }
 
-func (r *RestaurantServer) restExists(filter bson.M) *bc.Restaurant {
+func (r *RestaurantServer) UpdateRestaurant(ctx context.Context, req *pb.UpdateRestaurantRequest) (*pb.UpdateRestaurantResponse, error) {
+	log.Info("Update restaurant")
+
+	filter := r.restExists(req.GetOldEmail(), req.GetOldPhone())
+	if filter == nil {
+		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("restaurant not found"))
+	}
+
+	replaceCtx, replaceCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer replaceCancel()
+
+	_, err := r.restCollection.ReplaceOne(replaceCtx, filter, bc.CreateRestBson(req.GetRestaurant()))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while replacing in mongo: %v", err))
+	}
+
+	return &pb.UpdateRestaurantResponse{
+		Response: "Successfully updated restaurant",
+	}, nil
+}
+
+func (r *RestaurantServer) DeleteRestaurant(ctx context.Context, req *pb.DeleteRestaurantRequest) (*pb.DeleteRestaurantResponse, error) {
+	log.Info("Deleting restaurant")
+
+	filter := r.restExists(req.GetEmail(), req.GetPhone())
+	if filter == nil {
+		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("restaurant not found"))
+	}
+
+	_, delErr := r.restCollection.DeleteOne(ctx, filter)
+	if delErr != nil {
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while deleting in mongo: %v", delErr))
+	}
+
+	return &pb.DeleteRestaurantResponse{
+		Response: "Successfully deleted restaurant",
+	}, nil
+}
+
+func (r *RestaurantServer) restExists(email string, phone string) bson.M {
+	emailFilterRes := bson.M{"email": email}
+	phoneFilterRes := bson.M{"phone": phone}
+	if r.checkRes(emailFilterRes) != nil {
+		return emailFilterRes
+	} else if r.checkRes(phoneFilterRes) != nil {
+		return phoneFilterRes
+	}
+
+	return nil
+}
+
+func (r *RestaurantServer) checkRes(filter bson.M) *bc.Restaurant {
 	resObj := &bc.Restaurant{}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

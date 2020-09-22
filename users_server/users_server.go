@@ -9,11 +9,11 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	bc "github.com/avvarikrish/chefcurrygobbles/pkg/bsonconversion"
+	"github.com/avvarikrish/chefcurrygobbles/pkg/hash"
 	"github.com/avvarikrish/chefcurrygobbles/users_server/config"
 
 	pb "github.com/avvarikrish/chefcurrygobbles/proto/users_server"
@@ -87,7 +87,7 @@ func (u *UsersServer) RegisterUser(_ context.Context, req *pb.RegisterUserReques
 	insCtx, insCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer insCancel()
 
-	password, passwordErr := createHash(userReq.GetPassword())
+	password, passwordErr := hash.CreateHash(userReq.GetPassword())
 	if passwordErr != nil {
 		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while hashing password: %v", passwordErr))
 	}
@@ -115,14 +115,8 @@ func (u *UsersServer) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("email not found: %v", loginEmail))
 	}
 
-	if err := bcrypt.CompareHashAndPassword(data.Password, []byte(loginPassword)); err != nil {
-		return &pb.LoginUserResponse{
-			Response: false,
-		}, nil
-	}
-
 	return &pb.LoginUserResponse{
-		Response: true,
+		Response: hash.CompareHash(data.Password, []byte(loginPassword)),
 	}, nil
 }
 
@@ -143,7 +137,7 @@ func (u *UsersServer) UpdateUser(_ context.Context, req *pb.UpdateUserRequest) (
 	replaceCtx, replaceCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer replaceCancel()
 
-	password, passwordErr := createHash(req.GetUser().GetPassword())
+	password, passwordErr := hash.CreateHash(req.GetUser().GetPassword())
 	if passwordErr != nil {
 		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while hashing password: %v", passwordErr))
 	}
@@ -175,13 +169,4 @@ func (u *UsersServer) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest)
 	return &pb.DeleteUserResponse{
 		Response: "Successfully deleted user",
 	}, nil
-}
-
-func createHash(password string) ([]byte, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return nil, err
-	}
-
-	return hashedPassword, nil
 }

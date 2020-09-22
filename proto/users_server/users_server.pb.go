@@ -557,11 +557,11 @@ const _ = grpc.SupportPackageIsVersion4
 type UsersClient interface {
 	// Unary API to register user
 	RegisterUser(ctx context.Context, in *RegisterUserRequest, opts ...grpc.CallOption) (*RegisterUserResponse, error)
-	// // Unary API to login user
+	// Unary API to login user
 	LoginUser(ctx context.Context, in *LoginUserRequest, opts ...grpc.CallOption) (*LoginUserResponse, error)
-	// // Unary API to update user
+	// Unary API to update user
 	UpdateUser(ctx context.Context, in *UpdateUserRequest, opts ...grpc.CallOption) (*UpdateUserResponse, error)
-	// // Unary API to delete user
+	// Unary API to delete user
 	DeleteUser(ctx context.Context, in *DeleteUserRequest, opts ...grpc.CallOption) (*DeleteUserResponse, error)
 }
 
@@ -613,11 +613,11 @@ func (c *usersClient) DeleteUser(ctx context.Context, in *DeleteUserRequest, opt
 type UsersServer interface {
 	// Unary API to register user
 	RegisterUser(context.Context, *RegisterUserRequest) (*RegisterUserResponse, error)
-	// // Unary API to login user
+	// Unary API to login user
 	LoginUser(context.Context, *LoginUserRequest) (*LoginUserResponse, error)
-	// // Unary API to update user
+	// Unary API to update user
 	UpdateUser(context.Context, *UpdateUserRequest) (*UpdateUserResponse, error)
-	// // Unary API to delete user
+	// Unary API to delete user
 	DeleteUser(context.Context, *DeleteUserRequest) (*DeleteUserResponse, error)
 }
 

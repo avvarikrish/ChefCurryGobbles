@@ -58,12 +58,12 @@ service Users {
     // Unary API to register user
     rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse) {};
 
-    // // Unary API to login user
+    // Unary API to login user
     rpc LoginUser (LoginUserRequest) returns (LoginUserResponse) {};
 
-    // // Unary API to update user
+    // Unary API to update user
     rpc UpdateUser (UpdateUserRequest) returns (UpdateUserResponse) {};
 
-    // // Unary API to delete user
+    // Unary API to delete user
     rpc DeleteUser (DeleteUserRequest) returns (DeleteUserResponse) {};
 }

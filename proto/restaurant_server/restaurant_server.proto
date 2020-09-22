@@ -32,19 +32,32 @@ message AddRestaurantResponse {
     string response = 1;
 }
 
-message AddMenuRequest {
-    string restId = 1;
-    repeated MenuItem item = 2;
+message UpdateRestaurantRequest {
+    string oldEmail = 1;
+    string oldPhone = 2;
+    Restaurant restaurant = 3;
 }
 
-message AddMenuResponse {
+message UpdateRestaurantResponse {
+    string response = 1;
+}
+
+message DeleteRestaurantRequest {
+    string email = 1;
+    string phone = 2;
+}
+
+message DeleteRestaurantResponse {
     string response = 1;
 }
 
 service Restaurants {
-    // // Unary API to add restaurant
+    // Unary API to add restaurant
     rpc AddRestaurant (AddRestaurantRequest) returns (AddRestaurantResponse) {};
 
-    // // Unary API to add menu
-    // rpc AddMenu (AddMenuRequest) returns (AddMenuResponse) {};
+    // Unary API to update restaurant info
+    rpc UpdateRestaurant (UpdateRestaurantRequest) returns (UpdateRestaurantResponse) {};
+
+    // Unary API to delete restaurant
+    rpc DeleteRestaurant (DeleteRestaurantRequest) returns (DeleteRestaurantResponse) {};
 }
