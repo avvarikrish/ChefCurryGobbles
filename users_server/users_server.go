@@ -9,6 +9,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"golang.org/x/crypto/bcrypt"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
@@ -89,7 +90,13 @@ func (u *UsersServer) RegisterUser(_ context.Context, req *pb.RegisterUserReques
 
 	insCtx, insCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer insCancel()
-	_, err := u.userCollection.InsertOne(insCtx, bc.CreateUserBson(userReq))
+
+	password, passwordErr := createHash(userReq.GetPassword())
+	if passwordErr != nil {
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while hashing password: %v", passwordErr))
+	}
+
+	_, err := u.userCollection.InsertOne(insCtx, bc.CreateUserBson(userReq, password))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while inserting into mongo: %v", err))
 	}
@@ -112,14 +119,14 @@ func (u *UsersServer) LoginUser(ctx context.Context, req *pb.LoginUserRequest) (
 		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("email not found: %v", loginEmail))
 	}
 
-	if loginPassword == data.Password {
+	if err := bcrypt.CompareHashAndPassword(data.Password, []byte(loginPassword)); err != nil {
 		return &pb.LoginUserResponse{
-			Response: true,
+			Response: false,
 		}, nil
 	}
 
 	return &pb.LoginUserResponse{
-		Response: false,
+		Response: true,
 	}, nil
 }
 
@@ -139,7 +146,13 @@ func (u *UsersServer) UpdateUser(_ context.Context, req *pb.UpdateUserRequest) (
 
 	replaceCtx, replaceCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer replaceCancel()
-	_, err := u.userCollection.ReplaceOne(replaceCtx, filter, bc.CreateUserBson(req.GetUser()))
+
+	password, passwordErr := createHash(req.GetUser().GetPassword())
+	if passwordErr != nil {
+		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while hashing password: %v", passwordErr))
+	}
+
+	_, err := u.userCollection.ReplaceOne(replaceCtx, filter, bc.CreateUserBson(req.GetUser(), password))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, fmt.Sprintf("error while replacing in mongo: %v", err))
 	}
@@ -166,4 +179,13 @@ func (u *UsersServer) DeleteUser(ctx context.Context, req *pb.DeleteUserRequest)
 	return &pb.DeleteUserResponse{
 		Response: "Successfully deleted user",
 	}, nil
+}
+
+func createHash(password string) ([]byte, error) {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return nil, err
+	}
+
+	return hashedPassword, nil
 }

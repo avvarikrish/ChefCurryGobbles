@@ -13,7 +13,7 @@ type User struct {
 	FirstName string             `bson:"first_name" json:"first_name"`
 	LastName  string             `bson:"last_name" json:"last_name"`
 	Email     string             `bson:"email" json:"email"`
-	Password  string             `bson:"password" json:"password"`
+	Password  []byte             `bson:"password" json:"password"`
 	Address   Addr               `bson:"address" json:"address"`
 }
 
@@ -53,13 +53,13 @@ type OrderItem struct {
 }
 
 // CreateUserBson creates a bson object of user data
-func CreateUserBson(userReq *pb.User) User {
+func CreateUserBson(userReq *pb.User, password []byte) User {
 	userAddReq := userReq.GetAddress()
 	return User{
 		FirstName: userReq.GetFirstName(),
 		LastName:  userReq.GetLastName(),
 		Email:     userReq.GetEmail(),
-		Password:  userReq.GetPassword(),
+		Password:  password,
 		Address: Addr{
 			StreetNumber: userAddReq.GetStreetNumber(),
 			Street:       userAddReq.GetStreet(),
