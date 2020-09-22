@@ -23,11 +23,9 @@ type RestaurantServer struct {
 	cfg         config.RestaurantServerConfig
 	initialized bool
 
-	mongoClient     *mongo.Client
-	db              *mongo.Database
-	userCollection  *mongo.Collection
-	restCollection  *mongo.Collection
-	orderCollection *mongo.Collection
+	mongoClient    *mongo.Client
+	db             *mongo.Database
+	restCollection *mongo.Collection
 }
 
 // New returns a new initialized instance of RestaurantServer.
@@ -65,9 +63,7 @@ func (r *RestaurantServer) setupMongo() error {
 
 	r.mongoClient = client
 	r.db = r.mongoClient.Database(r.cfg.Mongo.Database)
-	r.userCollection = r.db.Collection(r.cfg.Mongo.Collections.Users)
 	r.restCollection = r.db.Collection(r.cfg.Mongo.Collections.Restaurants)
-	r.orderCollection = r.db.Collection(r.cfg.Mongo.Collections.Orders)
 
 	return nil
 }

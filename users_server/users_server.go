@@ -24,11 +24,9 @@ type UsersServer struct {
 	cfg         config.UsersServerConfig
 	initialized bool
 
-	mongoClient     *mongo.Client
-	db              *mongo.Database
-	userCollection  *mongo.Collection
-	restCollection  *mongo.Collection
-	orderCollection *mongo.Collection
+	mongoClient    *mongo.Client
+	db             *mongo.Database
+	userCollection *mongo.Collection
 }
 
 // New returns a new initialized instance of UsersServer.
@@ -67,8 +65,6 @@ func (u *UsersServer) setupMongo() error {
 	u.mongoClient = client
 	u.db = u.mongoClient.Database(u.cfg.Mongo.Database)
 	u.userCollection = u.db.Collection(u.cfg.Mongo.Collections.Users)
-	u.restCollection = u.db.Collection(u.cfg.Mongo.Collections.Restaurants)
-	u.orderCollection = u.db.Collection(u.cfg.Mongo.Collections.Orders)
 
 	return nil
 }

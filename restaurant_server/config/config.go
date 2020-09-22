@@ -24,9 +24,7 @@ type mongo struct {
 }
 
 type mongoCollections struct {
-	Users       string
 	Restaurants string
-	Orders      string
 }
 
 // NewConfig initializes a new config object
@@ -56,9 +54,7 @@ func newMongo(v *viper.Viper) mongo {
 		MongoServer: v.GetString("mongo_server"),
 		Database:    v.GetString("database"),
 		Collections: mongoCollections{
-			Users:       m["users"],
 			Restaurants: m["restaurants"],
-			Orders:      m["orders"],
 		},
 	}
 }

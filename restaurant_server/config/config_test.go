@@ -13,9 +13,7 @@ func TestCcgobblesServerConfig(t *testing.T) {
 			MongoServer: "mongodb://mongodb:27017",
 			Database:    "chefcurrygobbles",
 			Collections: mongoCollections{
-				Users:       "Users",
 				Restaurants: "Restaurants",
-				Orders:      "Orders",
 			},
 		},
 		Server: server{
